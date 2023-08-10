@@ -1,5 +1,9 @@
 # Kotlin Multi-Armed Bandit
 
+<img src="static/imgs/kotlin_logo.png" alt="Kotlin Logo" height="50" /> 
+
+![Bandits Picture](static/imgs/bandits.png)
+
 The aim of this project is to learn the basics of Kotlin and Multi-Armed Bandits at the same time. 
 
 Multi-Armed Bandits are a type of problem, where you have many options to choose from and you want to pick the options that maximise your reward. A key component of this type of problem is that the properties (eg. distribution of rewards) of the options (arms) is not known at the start. An agent must engage with the environment to learn these properties. There becomes a tradeoff of exploiting the option which seems to be the best, versus exploring other options and learning more about the environment.  
