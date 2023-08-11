@@ -1,7 +1,5 @@
 package bandits
 
-import BanditArm
-
 class MultiArmedBandit(public val name: String, val arms: Array<BanditArm>, val strategy: EpsilonGreedyStrategy) {
     var bestArm: BanditArm = arms[0]
     var runningReward: Double = 0.0

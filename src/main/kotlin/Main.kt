@@ -2,8 +2,19 @@ import bandits.*
 import org.jetbrains.kotlinx.dataframe.api.*
 import org.jetbrains.kotlinx.dataframe.io.writeCSV
 
+fun simulateWriteResults(simulators: Array<MabSimulator>, resultsOutputPath: String) {
+    for (simulator in simulators) {
+        simulator.simulate()
+    }
+    val df = dataFrameOf(
+        simulators.map { it.trialRewards.toColumn(it.mab.name) }
+    )
+    df.writeCSV(resultsOutputPath)
+    println("Written results to $resultsOutputPath")
+}
 
 fun main(args: Array<String>) {
+    // Constants to be moved to environment specific config
     val NUMTRIALS = 5
     val NUMSTEPS = 500
 
@@ -20,6 +31,7 @@ fun main(args: Array<String>) {
         BanditArm("Arm 10", -1.0, 0.1),
     )
 
+    // Strategy params to be moved to strategy specific config
     val epsilon = 0.001
     val strategy = EpsilonGreedyStrategy(epsilon)
     val epsilon2 = 0.01
@@ -28,15 +40,10 @@ fun main(args: Array<String>) {
     val mab = MultiArmedBandit("mab1", ARMS, strategy)
     val mab2 = MultiArmedBandit("mab2", ARMS, strategy2)
 
-    val simulator1 = MabSimulator(mab, NUMTRIALS, NUMSTEPS)
-    val simulator2 = MabSimulator(mab2, NUMTRIALS, NUMSTEPS)
-
-    simulator1.simulate()
-    simulator2.simulate()
-
-    val df = dataFrameOf(
-        simulator1.trialRewards.toColumn(simulator1.mab.name),
-        simulator2.trialRewards.toColumn(simulator2.mab.name),
+    val simulators = arrayOf(
+        MabSimulator(mab, NUMTRIALS, NUMSTEPS),
+        MabSimulator(mab2, NUMTRIALS, NUMSTEPS)
     )
-    df.writeCSV(args[0])
+
+    simulateWriteResults(simulators, args[0])
 }
