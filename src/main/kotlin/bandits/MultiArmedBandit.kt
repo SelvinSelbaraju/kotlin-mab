@@ -18,6 +18,15 @@ class MultiArmedBandit(public val name: String, val arms: Array<BanditArm>, val 
         return arms[runningBestArm]
     }
 
+    fun resetMab() {
+        runningReward = 0.0
+        bestArm = arms[0]
+        for (arm in arms) {
+            arm.resetArm()
+        }
+        strategy.resetStrategy()
+    }
+
     fun step() {
         // Based on strategy, pick an arm and pull it
         val armToPull = strategy.selectArm(arms, findBestArm())

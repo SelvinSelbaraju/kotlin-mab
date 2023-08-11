@@ -1,9 +1,7 @@
 import bandits.*
-import org.jetbrains.kotlinx.dataframe.*
-import org.jetbrains.kotlinx.dataframe.api.columnOf
-import org.jetbrains.kotlinx.dataframe.api.dataFrameOf
-import org.jetbrains.kotlinx.dataframe.api.print
-import org.jetbrains.kotlinx.dataframe.api.toColumn
+import org.jetbrains.kotlinx.dataframe.api.*
+import org.jetbrains.kotlinx.dataframe.io.writeCSV
+
 
 fun main(args: Array<String>) {
     val NUMTRIALS = 5
@@ -28,24 +26,17 @@ fun main(args: Array<String>) {
     val strategy2 = EpsilonGreedyStrategy(epsilon2)
 
     val mab = MultiArmedBandit("mab1", ARMS, strategy)
-    val mabResults: MutableList<Double> = mutableListOf()
     val mab2 = MultiArmedBandit("mab2", ARMS, strategy2)
-    val mab2Results: MutableList<Double> = mutableListOf()
 
-    for (i in 1..NUMTRIALS) {
-        for (j in 1..NUMSTEPS) {
-            mab.step()
-            mab2.step()
-        }
-        mabResults.add(mab.runningReward)
-        mab2Results.add(mab2.runningReward)
+    val simulator1 = MabSimulator(mab, NUMTRIALS, NUMSTEPS)
+    val simulator2 = MabSimulator(mab2, NUMTRIALS, NUMSTEPS)
 
-        mab.runningReward = 0.0
-        mab2.runningReward = 0.0
-    }
+    simulator1.simulate()
+    simulator2.simulate()
+
     val df = dataFrameOf(
-        mabResults.toColumn(mab.name),
-        mab2Results.toColumn(mab2.name)
+        simulator1.trialRewards.toColumn(simulator1.mab.name),
+        simulator2.trialRewards.toColumn(simulator2.mab.name),
     )
-    df.print()
+    df.writeCSV(args[0])
 }

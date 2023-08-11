@@ -1,3 +1,5 @@
+package bandits
+
 import java.util.Random
 
 class BanditArm(val name: String, private val mean: Double, private val stdDev: Double, private val seed: Long = 42) {
@@ -18,6 +20,11 @@ class BanditArm(val name: String, private val mean: Double, private val stdDev: 
         val reward = sampleReward()
         updateRunningMean(reward)
         return reward
+    }
+
+    fun resetArm() {
+        runningMean = 0.0
+        numPulls = 0
     }
 }
 
