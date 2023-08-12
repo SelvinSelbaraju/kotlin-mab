@@ -1,4 +1,5 @@
 import bandits.*
+import bandits.strategies.*
 import org.jetbrains.kotlinx.dataframe.api.*
 import org.jetbrains.kotlinx.dataframe.io.writeCSV
 import java.io.File
@@ -26,9 +27,9 @@ fun main(args: Array<String>) {
 
     // Strategy params to be moved to strategy specific config
     val epsilon = 0.001
-    val strategy = EpsilonGreedyStrategy(epsilon)
+    val strategy = EpsilonGreedyStrategy(epsilon, arms)
     val epsilon2 = 0.01
-    val strategy2 = EpsilonGreedyStrategy(epsilon2)
+    val strategy2 = EpsilonGreedyStrategy(epsilon2, arms)
 
     val mab = MultiArmedBandit("mab1", arms, strategy)
     val mab2 = MultiArmedBandit("mab2", arms, strategy2)
