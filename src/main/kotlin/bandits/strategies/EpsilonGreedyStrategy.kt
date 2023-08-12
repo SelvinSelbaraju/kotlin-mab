@@ -3,8 +3,6 @@ package bandits.strategies
 import bandits.BanditArm
 import java.util.Random
 
-
-
 data class ArmInfo(
     val history: MutableList<Double>,
     var mean: Double,

@@ -7,9 +7,6 @@ class MultiArmedBandit(public val name: String, val arms: Array<BanditArm>, val 
 
     fun resetMab() {
         runningReward = 0.0
-        for (arm in arms) {
-            arm.resetArm()
-        }
         strategy.resetStrategy()
     }
 
