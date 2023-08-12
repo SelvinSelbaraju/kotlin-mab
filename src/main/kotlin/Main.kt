@@ -1,9 +1,8 @@
 import bandits.*
 import bandits.strategies.*
+import utils.loadJson
 import org.jetbrains.kotlinx.dataframe.api.*
 import org.jetbrains.kotlinx.dataframe.io.writeCSV
-import java.io.File
-import kotlinx.serialization.json.Json
 
 fun simulateWriteResults(simulators: Array<MabSimulator>, resultsOutputPath: String) {
     for (simulator in simulators) {
@@ -13,12 +12,8 @@ fun simulateWriteResults(simulators: Array<MabSimulator>, resultsOutputPath: Str
         simulators.map { it.trialRewards.toColumn(it.mab.name) }
     )
     df.writeCSV(resultsOutputPath)
+    println("Means: ${df.mean()}")
     println("Written results to $resultsOutputPath")
-}
-
-inline fun <reified T: Any> loadJson(inputPath: String): T {
-    val jsonText = File(inputPath).readText()
-    return Json.decodeFromString(jsonText)
 }
 
 fun main(args: Array<String>) {
@@ -26,10 +21,9 @@ fun main(args: Array<String>) {
     val arms = environment.arms.map{ BanditArm(it.name, it.mean, it.stdDev)}.toTypedArray()
 
     // Strategy params to be moved to strategy specific config
-    val epsilon = 0.001
-    val strategy = EpsilonGreedyStrategy(epsilon, arms)
-    val epsilon2 = 0.01
-    val strategy2 = EpsilonGreedyStrategy(epsilon2, arms)
+    val strategyFactory = StrategyFactory()
+    val strategy = strategyFactory.getStrategyFromConfig("src/main/assets/explore_e_greedy.json", arms)
+    val strategy2 = strategyFactory.getStrategyFromConfig("src/main/assets/no_explore_e_greedy.json", arms)
 
     val mab = MultiArmedBandit("mab1", arms, strategy)
     val mab2 = MultiArmedBandit("mab2", arms, strategy2)

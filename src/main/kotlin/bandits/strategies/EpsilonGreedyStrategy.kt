@@ -65,7 +65,6 @@ class EpsilonGreedyStrategy(var epsilon: Double, val arms: Array<BanditArm>): Ab
         val bestArm = armDistributions.entries.withIndex().maxBy { (_,entry) ->
             entry.value.mean
         }.index
-        println("Best Arm: $bestArm")
         return bestArm
     }
 

@@ -1,6 +1,6 @@
 {
-  "numTrials": 5,
-  "numSteps": 500,
+  "numTrials": 10000,
+  "numSteps": 200,
   "arms": [
     {
       "name": "Arm 0",
