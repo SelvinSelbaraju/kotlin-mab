@@ -14,7 +14,8 @@ data class StrategyConfig(
 
 class StrategyFactory() {
     private val strategiesMap = mapOf(
-        "e-greedy" to EpsilonGreedyStrategy::class
+        "e-greedy" to EpsilonGreedyStrategy::class,
+        "ts" to ThompsonSamplingStrategy::class
     )
     fun getStrategyFromConfig(configPath: String, arms: Array<BanditArm>): AbstractStrategy {
         val config = loadJson<StrategyConfig>(configPath)

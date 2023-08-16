@@ -1,27 +1,18 @@
 package bandits.strategies
 
 import bandits.BanditArm
-import java.util.Random
+import org.apache.commons.math3.random.JDKRandomGenerator
+import org.apache.commons.math3.distribution.BetaDistribution
 
-class EpsilonGreedyStrategy(var epsilon: Double, val arms: Array<BanditArm>): AbstractStrategy() {
-    val random = Random()
-    var numExplores = 0
+
+
+
+class ThompsonSamplingStrategy(val testParam: Double, val arms: Array<BanditArm>): AbstractStrategy() {
+    val random = JDKRandomGenerator()
     var armDistributions = resetArmDistributions(arms)
     var bestArm = random.nextInt(arms.size)
-    init {
-        updateInvalidEpsilon()
-    }
-    private fun updateInvalidEpsilon() {
-        epsilon = when {
-            epsilon < 0 -> 0.0
-            epsilon > 1 -> 1.0
-            else -> epsilon
-        }
-        println("Epsilon is: $epsilon")
-    }
 
     override fun resetStrategy() {
-        numExplores = 0
         armDistributions = resetArmDistributions(arms)
         bestArm = random.nextInt(arms.size)
     }
@@ -36,12 +27,11 @@ class EpsilonGreedyStrategy(var epsilon: Double, val arms: Array<BanditArm>): Ab
         bestArm = findBestArm()
     }
 
-    override fun pickArm(): Int  {
-        if (random.nextDouble() < epsilon) {
-            numExplores += 1
-            return random.nextInt(arms.size)
+    override fun pickArm(): Int {
+        val samples = armDistributions.values.map {
+            BetaDistribution(random, it.alpha, it.beta).sample()
         }
-        return bestArm
+        return samples.withIndex().maxBy { it.value }.index
     }
 
     private fun findBestArm(): Int {

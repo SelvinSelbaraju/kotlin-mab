@@ -1,0 +1,6 @@
+{
+  "strategyType": "ts",
+  "strategyParams": {
+    "testParam": 0.0
+  }
+}

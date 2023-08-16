@@ -1,18 +1,30 @@
 {
   "numTrials": 10000,
-  "numSteps": 200,
+  "numSteps": 1000,
   "arms": [
     {
       "name": "Arm 0",
-      "mean": 0.7
+      "mean": 0.3
     },
     {
       "name": "Arm 1",
-      "mean": 0.8
+      "mean": 0.5
     },
     {
       "name": "Arm 2",
-      "mean": 0.9
+      "mean": 0.7
+    },
+    {
+      "name": "Arm 3",
+      "mean": 0.3
+    },
+    {
+      "name": "Arm 4",
+      "mean": 0.5
+    },
+    {
+      "name": "Arm 5",
+      "mean": 0.7
     }
   ]
 }
