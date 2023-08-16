@@ -18,7 +18,7 @@ fun simulateWriteResults(simulators: Array<MabSimulator>, resultsOutputPath: Str
 
 fun main(args: Array<String>) {
     val environment = loadJson<Environment>("src/main/assets/environment.json")
-    val arms = environment.arms.map{ BanditArm(it.name, it.mean, it.stdDev)}.toTypedArray()
+    val arms = environment.arms.map{ BanditArm(it.name, it.mean)}.toTypedArray()
 
     // Strategy params to be moved to strategy specific config
     val strategyFactory = StrategyFactory()

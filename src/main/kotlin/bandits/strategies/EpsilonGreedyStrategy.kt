@@ -43,7 +43,7 @@ class EpsilonGreedyStrategy(var epsilon: Double, val arms: Array<BanditArm>): Ab
         armDistributions = resetArmDistributions(arms)
     }
 
-    override fun updateStrategy(reward: Double, arm: BanditArm) {
+    override fun updateStrategy(reward: Int, arm: BanditArm) {
         // Update mean
         val armInfo = armDistributions[arm.name]!!
         armDistributions[arm.name]!!.numPulls += 1
