@@ -1,12 +1,13 @@
 package bandits
 
-import java.util.Random
+import org.apache.commons.math3.random.JDKRandomGenerator
+import org.apache.commons.math3.distribution.BinomialDistribution
 
-class BanditArm(val name: String, private val mean: Double, private val stdDev: Double, private val seed: Long = 42) {
-    private val random = Random(seed)
+class BanditArm(val name: String, private val mean: Double, private val seed: Int = 42) {
+    private val bernoulli = BinomialDistribution(JDKRandomGenerator(seed), 1, mean)
 
-    fun pullArm(): Double {
-        return random.nextGaussian() * stdDev + mean
+    fun pullArm(): Int {
+        return bernoulli.sample()
     }
 }
 

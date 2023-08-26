@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
 data class Arm(
     val name: String,
     val mean: Double,
-    val stdDev: Double,
 )
 
 @Serializable
