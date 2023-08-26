@@ -1,4 +1,20 @@
 {
+  "customers": {
+    "Type A": {
+      "populationProb": 0.2,
+      "armProbs": {
+        "Chinese": 0.5,
+        "Turkish": 0.2
+      }
+    },
+    "Type B": {
+      "populationProb": 0.8,
+      "armProbs": {
+        "Chinese": 0.1,
+        "Turkish": 0.8
+      }
+    }
+  },
   "numTrials": 10000,
   "numSteps": 1000,
   "arms": [
