@@ -34,9 +34,9 @@ fun main(args: Array<String>) {
     val mab3 = MultiArmedBanditEnvironment("mab3", environment, strategy3)
 
     val simulators = arrayOf(
-        MabSimulator(mab, environment.numTrials, environment.numSteps),
-        MabSimulator(mab2, environment.numTrials, environment.numSteps),
-        MabSimulator(mab3, environment.numTrials, environment.numSteps)
+        MabSimulator(mab, environment.numTrials, environment.numCustomers),
+        MabSimulator(mab2, environment.numTrials, environment.numCustomers),
+        MabSimulator(mab3, environment.numTrials, environment.numCustomers)
     )
 
     simulateWriteResults(simulators, args[0])

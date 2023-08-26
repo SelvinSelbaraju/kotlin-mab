@@ -16,7 +16,7 @@ data class CustomerStats(
 @Serializable
 data class Environment(
     val numTrials: Int,
-    val numSteps: Int,
+    val numCustomers: Int,
     val arms: Array<String>,
     val customers: Map<String, CustomerStats>
 )
