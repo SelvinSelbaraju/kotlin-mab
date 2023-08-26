@@ -7,16 +7,10 @@ data class ArmInfo(
     var beta: Double,
 )
 abstract class AbstractStrategy {
-    fun resetArmDistributions(arms: Array<BanditArm>): MutableMap<String, ArmInfo> {
-        val distributions: MutableMap<String, ArmInfo> = mutableMapOf()
-        return arms.associateTo(distributions) { arm ->
-            arm.name to ArmInfo(
-                1.0,
-                1.0,
-            )
-        }
+    fun resetArmDistributions(arms: Array<String>): MutableMap<String, ArmInfo> {
+        return arms.associateWith { ArmInfo(1.0, 1.0) }.toMutableMap()
     }
-    abstract fun updateStrategy(reward: Int, arm: BanditArm)
+    abstract fun updateStrategy(reward: Int, armName: String)
     abstract fun resetStrategy()
-    abstract fun pickArm(): Int
+    abstract fun pickArm(): String
 }

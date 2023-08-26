@@ -7,42 +7,36 @@ import org.apache.commons.math3.distribution.BetaDistribution
 
 
 
-class ThompsonSamplingStrategy(val testParam: Double, val arms: Array<BanditArm>): AbstractStrategy() {
+class ThompsonSamplingStrategy(val testParam: Double, val arms: Array<String>): AbstractStrategy() {
     val random = JDKRandomGenerator()
     var armDistributions = resetArmDistributions(arms)
-    var bestArm = random.nextInt(arms.size)
+    var bestArm = arms[random.nextInt(arms.size)]
 
     override fun resetStrategy() {
         armDistributions = resetArmDistributions(arms)
-        bestArm = random.nextInt(arms.size)
+        bestArm = arms[random.nextInt(arms.size)]
     }
 
-    override fun updateStrategy(reward: Int, arm: BanditArm) {
+    override fun updateStrategy(reward: Int, armName: String) {
         if (reward > 0) {
-            armDistributions[arm.name]!!.alpha += 1
+            armDistributions[armName]!!.alpha += 1
         } else {
-            armDistributions[arm.name]!!.beta += 1
+            armDistributions[armName]!!.beta += 1
         }
         // Update the best arm
         bestArm = findBestArm()
     }
 
-    override fun pickArm(): Int {
-        val samples = armDistributions.values.map {
-            BetaDistribution(random, it.alpha, it.beta).sample()
-        }
-        return samples.withIndex().maxBy { it.value }.index
+    override fun pickArm(): String {
+        return bestArm
     }
 
-    private fun findBestArm(): Int {
-        val maxMean = armDistributions.values.maxOfOrNull { it.alpha / (it.alpha + it.beta) }
-        val bestArms = armDistributions.values.mapIndexedNotNull { index, it ->
-            if(it.alpha / (it.alpha + it.beta) == maxMean) index else null
+    private fun findBestArm(): String {
+        val samples = armDistributions.mapValues {
+            BetaDistribution(random, it.value.alpha, it.value.beta).sample()
         }
-        return if (bestArms.size > 1) {
-            bestArms[random.nextInt(bestArms.size)]
-        } else {
-            bestArms[0]
-        }
+        val maxSample = samples.maxOf { it.value }
+        val bestArms = samples.filter { it.value == maxSample }.keys.toList()
+        return bestArms[random.nextInt(bestArms.size)]
     }
 }
