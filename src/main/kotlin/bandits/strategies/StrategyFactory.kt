@@ -17,7 +17,7 @@ class StrategyFactory() {
         "e-greedy" to EpsilonGreedyStrategy::class,
         "ts" to ThompsonSamplingStrategy::class
     )
-    fun getStrategyFromConfig(configPath: String, arms: Array<BanditArm>): AbstractStrategy {
+    fun getStrategyFromConfig(configPath: String, arms: Array<String>): AbstractStrategy {
         val config = loadJson<StrategyConfig>(configPath)
         val strategyConstructor = strategiesMap[config.strategyType]!!.primaryConstructor!!
         val constructorParams = strategyConstructor.parameters.associateWith { parameter -> config.strategyParams.getOrDefault(parameter.name, arms)}

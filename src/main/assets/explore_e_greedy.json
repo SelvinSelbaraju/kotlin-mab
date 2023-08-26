@@ -1,6 +1,6 @@
 {
   "strategyType": "e-greedy",
   "strategyParams": {
-    "epsilon": 0.2
+    "epsilon": 0.1
   }
 }

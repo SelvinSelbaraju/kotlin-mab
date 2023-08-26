@@ -1,46 +1,33 @@
 {
   "customers": {
-    "Type A": {
-      "populationProb": 0.2,
+    "Selvin": {
+      "populationProb": 0.5,
       "armProbs": {
-        "Chinese": 0.5,
-        "Turkish": 0.2
+        "Chinese": 0.3,
+        "Turkish": 0.6,
+        "Japanese":  0.9,
+        "Pizza":  0.1,
+        "Burgers": 0.25
       }
     },
-    "Type B": {
-      "populationProb": 0.8,
+    "Ella": {
+      "populationProb": 0.5,
       "armProbs": {
-        "Chinese": 0.1,
-        "Turkish": 0.8
+        "Chinese": 0.3,
+        "Turkish": 0.1,
+        "Japanese":  0.7,
+        "Pizza":  0.4,
+        "Burgers": 0.2
       }
     }
   },
-  "numTrials": 10000,
+  "numTrials": 100,
   "numSteps": 1000,
   "arms": [
-    {
-      "name": "Arm 0",
-      "mean": 0.3
-    },
-    {
-      "name": "Arm 1",
-      "mean": 0.5
-    },
-    {
-      "name": "Arm 2",
-      "mean": 0.7
-    },
-    {
-      "name": "Arm 3",
-      "mean": 0.3
-    },
-    {
-      "name": "Arm 4",
-      "mean": 0.5
-    },
-    {
-      "name": "Arm 5",
-      "mean": 0.7
-    }
+    "Chinese",
+    "Turkish",
+    "Japanese",
+    "Pizza",
+    "Burgers"
   ]
 }

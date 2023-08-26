@@ -2,12 +2,13 @@ package bandits.strategies
 
 import bandits.BanditArm
 import java.util.Random
+import kotlin.math.max
 
-class EpsilonGreedyStrategy(var epsilon: Double, val arms: Array<BanditArm>): AbstractStrategy() {
+class EpsilonGreedyStrategy(var epsilon: Double, val arms: Array<String>): AbstractStrategy() {
     val random = Random()
     var numExplores = 0
     var armDistributions = resetArmDistributions(arms)
-    var bestArm = random.nextInt(arms.size)
+    var bestArm = arms[random.nextInt(arms.size)]
     init {
         updateInvalidEpsilon()
     }
@@ -23,32 +24,32 @@ class EpsilonGreedyStrategy(var epsilon: Double, val arms: Array<BanditArm>): Ab
     override fun resetStrategy() {
         numExplores = 0
         armDistributions = resetArmDistributions(arms)
-        bestArm = random.nextInt(arms.size)
+        bestArm = arms[random.nextInt(arms.size)]
     }
 
-    override fun updateStrategy(reward: Int, arm: BanditArm) {
+    override fun updateStrategy(reward: Int, armName: String) {
         if (reward > 0) {
-            armDistributions[arm.name]!!.alpha += 1
+            armDistributions[armName]!!.alpha += 1
         } else {
-            armDistributions[arm.name]!!.beta += 1
+            armDistributions[armName]!!.beta += 1
         }
         // Update the best arm
         bestArm = findBestArm()
     }
 
-    override fun pickArm(): Int  {
+    override fun pickArm(): String  {
         if (random.nextDouble() < epsilon) {
             numExplores += 1
-            return random.nextInt(arms.size)
+            return arms[random.nextInt(arms.size)]
         }
         return bestArm
     }
 
-    private fun findBestArm(): Int {
-        val maxMean = armDistributions.values.maxOfOrNull { it.alpha / (it.alpha + it.beta) }
-        val bestArms = armDistributions.values.mapIndexedNotNull { index, it ->
-            if(it.alpha / (it.alpha + it.beta) == maxMean) index else null
-        }
+    private fun findBestArm(): String {
+        val maxMean = armDistributions.values.maxOf { it.alpha / (it.alpha + it.beta) }
+        val bestArms = armDistributions.filter{
+            it.value.alpha / (it.value.alpha + it.value.beta) == maxMean
+        }.keys.toList()
         return if (bestArms.size > 1) {
             bestArms[random.nextInt(bestArms.size)]
         } else {

@@ -1,4 +1,4 @@
-package bandits
+package bandits.environments
 
 import kotlinx.serialization.Serializable
 
@@ -14,15 +14,9 @@ data class CustomerStats(
 )
 
 @Serializable
-data class Arm(
-    val name: String,
-    val mean: Double,
-)
-
-@Serializable
 data class Environment(
     val numTrials: Int,
     val numSteps: Int,
-    val arms: Array<Arm>,
+    val arms: Array<String>,
     val customers: Map<String, CustomerStats>
 )

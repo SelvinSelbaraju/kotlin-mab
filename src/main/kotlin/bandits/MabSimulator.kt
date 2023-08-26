@@ -1,6 +1,8 @@
 package bandits
 
-class MabSimulator(val mab: MultiArmedBandit, val numTrials: Int, val numSteps: Int) {
+import bandits.environments.MultiArmedBanditEnvironment
+
+class MabSimulator(val mab: MultiArmedBanditEnvironment, val numTrials: Int, val numSteps: Int) {
     var trialRewards: MutableList<Double> = mutableListOf()
 
     // Perform a trial which is a collection of steps
