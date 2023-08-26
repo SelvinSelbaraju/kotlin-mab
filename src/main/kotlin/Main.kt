@@ -3,17 +3,26 @@ import bandits.environments.Environment
 import bandits.environments.MultiArmedBanditEnvironment
 import bandits.strategies.*
 import org.apache.commons.math3.distribution.BinomialDistribution
+import org.jetbrains.kotlinx.dataframe.AnyFrame
+import org.jetbrains.kotlinx.dataframe.DataFrame
 import utils.loadJson
 import org.jetbrains.kotlinx.dataframe.api.*
 import org.jetbrains.kotlinx.dataframe.io.writeCSV
+
 
 fun simulateWriteResults(simulators: Array<MabSimulator>, resultsOutputPath: String) {
     for (simulator in simulators) {
         simulator.simulate()
     }
-    val df = dataFrameOf(
-        simulators.map { it.trialRewards.toColumn(it.mab.name) }
+    val dataMap = mapOf(
+        "trial" to simulators[0].trialHistories[0].trialNumber,
+        "customers" to simulators[0].trialHistories[0].customers,
+        "cuisine" to simulators[0].trialHistories[0].armNames,
+        "trueMean" to simulators[0].trialHistories[0].trueMeans,
+        "reward" to simulators[0].trialHistories[0].rewards,
     )
+    val df = dataMap.toDataFrame()
+
     df.writeCSV(resultsOutputPath)
     println("Means: ${df.mean()}")
     println("Written results to $resultsOutputPath")

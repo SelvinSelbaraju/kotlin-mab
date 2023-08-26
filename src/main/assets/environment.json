@@ -21,8 +21,8 @@
       }
     }
   },
-  "numTrials": 100,
-  "numCustomers": 1000,
+  "numTrials": 10,
+  "numCustomers": 10,
   "arms": [
     "Chinese",
     "Turkish",
