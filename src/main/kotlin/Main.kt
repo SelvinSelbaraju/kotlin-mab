@@ -3,19 +3,38 @@ import bandits.environments.Environment
 import bandits.environments.MultiArmedBanditEnvironment
 import bandits.strategies.*
 import org.apache.commons.math3.distribution.BinomialDistribution
+import org.jetbrains.kotlinx.dataframe.AnyFrame
+import org.jetbrains.kotlinx.dataframe.DataFrame
 import utils.loadJson
 import org.jetbrains.kotlinx.dataframe.api.*
 import org.jetbrains.kotlinx.dataframe.io.writeCSV
 
+
 fun simulateWriteResults(simulators: Array<MabSimulator>, resultsOutputPath: String) {
-    for (simulator in simulators) {
+    val results = mutableListOf<AnyFrame>()
+    for ((i,simulator) in simulators.withIndex()) {
         simulator.simulate()
+        var df = mapOf(
+            "trial" to simulator.mab.history.trialNumber,
+            "customers" to simulator.mab.history.customers,
+            "cuisine" to simulator.mab.history.armNames,
+            "trueMean" to simulator.mab.history.trueMeans,
+            "reward" to simulator.mab.history.rewards,
+        ).toDataFrame()
+        df = df.add {
+            "simulation" from { i }
+            "environmentName" from { simulator.mab.name }
+        }
+        results.add(df)
     }
-    val df = dataFrameOf(
-        simulators.map { it.trialRewards.toColumn(it.mab.name) }
+    val resultsData = results.concat()
+    resultsData.writeCSV(resultsOutputPath)
+
+    // For each environment, take sum of each trial's rewards, take mean
+    println(
+        resultsData.groupBy("environmentName", "trial")
+            .sum().groupBy("environmentName").mean().getColumns("environmentName", "reward")
     )
-    df.writeCSV(resultsOutputPath)
-    println("Means: ${df.mean()}")
     println("Written results to $resultsOutputPath")
 }
 
