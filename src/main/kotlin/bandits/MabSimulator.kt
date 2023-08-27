@@ -13,7 +13,7 @@ class MabSimulator(val mab: MultiArmedBanditEnvironment, val numTrials: Int, val
     }
 
     fun simulate() {
-        for (i in 1..numCustomers) {
+        for (i in 1..numTrials) {
             simulateTrial()
             mab.resetMab()
         }
