@@ -15,11 +15,11 @@ fun simulateWriteResults(simulators: Array<MabSimulator>, resultsOutputPath: Str
         simulator.simulate()
     }
     val dataMap = mapOf(
-        "trial" to simulators[0].trialHistories[0].trialNumber,
-        "customers" to simulators[0].trialHistories[0].customers,
-        "cuisine" to simulators[0].trialHistories[0].armNames,
-        "trueMean" to simulators[0].trialHistories[0].trueMeans,
-        "reward" to simulators[0].trialHistories[0].rewards,
+        "trial" to simulators[0].mab.history.trialNumber,
+        "customers" to simulators[0].mab.history.customers,
+        "cuisine" to simulators[0].mab.history.armNames,
+        "trueMean" to simulators[0].mab.history.trueMeans,
+        "reward" to simulators[0].mab.history.rewards,
     )
     val df = dataMap.toDataFrame()
 

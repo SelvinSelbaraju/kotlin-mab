@@ -39,13 +39,6 @@ class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val 
     }
 
     fun resetMab() {
-        history = EnvironmentHistory(
-            mutableListOf<Int>(),
-            mutableListOf<String>(),
-            mutableListOf<String>(),
-            mutableListOf<Double>(),
-            mutableListOf<Int>(),
-        )
         trialNumber += 1
         strategy.resetStrategy()
     }
