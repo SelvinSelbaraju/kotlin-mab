@@ -1,62 +1,53 @@
-import bandits.*
-import bandits.environments.Environment
-import bandits.environments.MultiArmedBanditEnvironment
-import bandits.strategies.*
-import org.apache.commons.math3.distribution.BinomialDistribution
-import org.jetbrains.kotlinx.dataframe.AnyFrame
-import org.jetbrains.kotlinx.dataframe.DataFrame
-import utils.loadJson
-import org.jetbrains.kotlinx.dataframe.api.*
-import org.jetbrains.kotlinx.dataframe.io.writeCSV
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.singleWindowApplication
 
+data class EnvironmentSettings(
+    var numTrials: Int,
+    var numCustomers: Int
+)
 
-fun simulateWriteResults(simulators: Array<MabSimulator>, resultsOutputPath: String) {
-    val results = mutableListOf<AnyFrame>()
-    for ((i,simulator) in simulators.withIndex()) {
-        simulator.simulate()
-        var df = mapOf(
-            "trial" to simulator.mab.history.trialNumber,
-            "customers" to simulator.mab.history.customers,
-            "cuisine" to simulator.mab.history.armNames,
-            "trueMean" to simulator.mab.history.trueMeans,
-            "reward" to simulator.mab.history.rewards,
-        ).toDataFrame()
-        df = df.add {
-            "simulation" from { i }
-            "environmentName" from { simulator.mab.name }
+@OptIn(ExperimentalComposeUiApi::class)
+fun main() = singleWindowApplication {
+    MaterialTheme {
+        var settings by remember { mutableStateOf(EnvironmentSettings(0, 0)) }
+        Column(Modifier.fillMaxSize(), Arrangement.spacedBy(5.dp)) {
+            Text("Environment Settings")
+            TextField(
+                value = settings.numTrials.toString(),
+                onValueChange = {
+                    val input = it.toIntOrNull() ?: 0
+                    settings = settings.copy(numTrials = input)
+                },
+                label = { Text("Num Trials") },
+            )
+            TextField(
+                value = settings.numCustomers.toString(),
+                onValueChange = {
+                    val input = it.toIntOrNull() ?: 0
+                    settings = settings.copy(numCustomers = input)
+                },
+                label = { Text("Num Customers") },
+            )
         }
-        results.add(df)
     }
-    val resultsData = results.concat()
-    resultsData.writeCSV(resultsOutputPath)
-
-    // For each environment, take sum of each trial's rewards, take mean
-    println(
-        resultsData.groupBy("environmentName", "trial")
-            .sum().groupBy("environmentName").mean().getColumns("environmentName", "reward")
-    )
-    println("Written results to $resultsOutputPath")
-}
-
-fun main(args: Array<String>) {
-    val environment = loadJson<Environment>("src/main/assets/environment.json")
-    val arms = environment.arms
-
-    // Strategy params to be moved to strategy specific config
-    val strategyFactory = StrategyFactory()
-    val strategy = strategyFactory.getStrategyFromConfig("src/main/assets/explore_e_greedy.json", arms)
-    val strategy2 = strategyFactory.getStrategyFromConfig("src/main/assets/no_explore_e_greedy.json", arms)
-    val strategy3 = strategyFactory.getStrategyFromConfig("src/main/assets/ts.json", arms)
-
-    val mab = MultiArmedBanditEnvironment("mab1", environment, strategy)
-    val mab2 = MultiArmedBanditEnvironment("mab2", environment, strategy2)
-    val mab3 = MultiArmedBanditEnvironment("mab3", environment, strategy3)
-
-    val simulators = arrayOf(
-        MabSimulator(mab, environment.numTrials, environment.numCustomers),
-        MabSimulator(mab2, environment.numTrials, environment.numCustomers),
-        MabSimulator(mab3, environment.numTrials, environment.numCustomers)
-    )
-
-    simulateWriteResults(simulators, args[0])
 }
