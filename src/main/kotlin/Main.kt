@@ -20,34 +20,16 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.singleWindowApplication
-
-data class EnvironmentSettings(
-    var numTrials: Int,
-    var numCustomers: Int
-)
+import bandits.environments.Environment
+import utils.loadJson
+import kotlin.reflect.KMutableProperty1
+import kotlin.reflect.full.declaredMemberProperties
+import kotlin.reflect.full.memberProperties
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() = singleWindowApplication {
-    MaterialTheme {
-        var settings by remember { mutableStateOf(EnvironmentSettings(0, 0)) }
-        Column(Modifier.fillMaxSize(), Arrangement.spacedBy(5.dp)) {
-            Text("Environment Settings")
-            TextField(
-                value = settings.numTrials.toString(),
-                onValueChange = {
-                    val input = it.toIntOrNull() ?: 0
-                    settings = settings.copy(numTrials = input)
-                },
-                label = { Text("Num Trials") },
-            )
-            TextField(
-                value = settings.numCustomers.toString(),
-                onValueChange = {
-                    val input = it.toIntOrNull() ?: 0
-                    settings = settings.copy(numCustomers = input)
-                },
-                label = { Text("Num Customers") },
-            )
-        }
+    var settings by remember { mutableStateOf(loadJson<Environment>("src/main/assets/environment.json")) }
+    DynamicForm(settings) { updatedSettings ->
+        settings = updatedSettings
     }
 }

@@ -4,14 +4,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CustomerStats(
-    val populationProb: Double,
-    val armProbs: Map<String, Double>
+    var populationProb: Double,
+    var armProbs: Map<String, Double>
 )
 
 @Serializable
 data class Environment(
-    val numTrials: Int,
-    val numCustomers: Int,
-    val arms: Array<String>,
-    val customers: Map<String, CustomerStats>
+    var numTrials: Int,
+    var numCustomers: Int,
+    var arms: Array<String>,
+    var customers: Map<String, CustomerStats>
 )
