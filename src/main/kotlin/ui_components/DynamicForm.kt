@@ -1,4 +1,7 @@
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -17,8 +20,9 @@ import kotlin.reflect.typeOf
 fun DynamicForm(settings: Environment, onSettingsChanged: (Environment) -> Unit) {
     val properties = Environment::class.memberProperties
 
+    val scrollState = rememberScrollState()
     Column(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier.verticalScroll(scrollState).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         for (property in properties) {
