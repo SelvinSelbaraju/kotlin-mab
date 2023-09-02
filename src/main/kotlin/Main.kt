@@ -1,7 +1,10 @@
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -19,6 +22,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.singleWindowApplication
 import bandits.environments.Environment
+import ui_components.environment.ArmManger
+import ui_components.environment.CustomerManager
+import ui_components.environment.CustomerStatsManager
 import utils.loadJson
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.full.declaredMemberProperties
@@ -26,41 +32,18 @@ import kotlin.reflect.full.memberProperties
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() = singleWindowApplication {
+    val scrollState = rememberScrollState()
     val arms = remember { mutableStateListOf("New Arm") }
+    val customers = remember { mutableStateListOf("New Customer") }
     val armsReadOnly = remember { mutableStateOf(false) }
-    Column {
-        arms.forEachIndexed { index, arm ->
-            TextField(
-                value = arm,
-                onValueChange = { it: String ->
-                    arms[index] = it
-                },
-                label = { Text("Arm $index")},
-                readOnly = armsReadOnly.value
-            )
+    val customersReadOnly = remember { mutableStateOf(false) }
+    Column(modifier = Modifier.verticalScroll(scrollState)) {
+        Row {
+            ArmManger(arms, armsReadOnly)
+            CustomerManager(customers, customersReadOnly)
         }
-        Button(onClick = { if (!armsReadOnly.value) {
-            arms.add("New Arm")
-        } }) {
-            Text("Add Arm")
-        }
-        Button(onClick = { if (!armsReadOnly.value) {
-            arms.removeLast()
-        } }) {
-            Text("Delete")
-        }
-        Button(onClick = { armsReadOnly.value = !armsReadOnly.value }) {
-            if (!armsReadOnly.value) {
-                Text("Save Arms")
-            } else {
-                Text("Edit Arms")
-            }
-
-        }
-        if (armsReadOnly.value) {
-            Text("Arms Saved")
-        } else {
-            Text("Arms Editable")
+        if (armsReadOnly.value && customersReadOnly.value) {
+            CustomerStatsManager(arms, customers)
         }
     }
 }
