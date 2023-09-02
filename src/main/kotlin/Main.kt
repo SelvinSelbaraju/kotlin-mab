@@ -2,13 +2,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
@@ -28,8 +26,41 @@ import kotlin.reflect.full.memberProperties
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() = singleWindowApplication {
-    var settings by remember { mutableStateOf(loadJson<Environment>("src/main/assets/environment.json")) }
-    DynamicForm(settings) { updatedSettings ->
-        settings = updatedSettings
+    val arms = remember { mutableStateListOf("New Arm") }
+    val armsReadOnly = remember { mutableStateOf(false) }
+    Column {
+        arms.forEachIndexed { index, arm ->
+            TextField(
+                value = arm,
+                onValueChange = { it: String ->
+                    arms[index] = it
+                },
+                label = { Text("Arm $index")},
+                readOnly = armsReadOnly.value
+            )
+        }
+        Button(onClick = { if (!armsReadOnly.value) {
+            arms.add("New Arm")
+        } }) {
+            Text("Add Arm")
+        }
+        Button(onClick = { if (!armsReadOnly.value) {
+            arms.removeLast()
+        } }) {
+            Text("Delete")
+        }
+        Button(onClick = { armsReadOnly.value = !armsReadOnly.value }) {
+            if (!armsReadOnly.value) {
+                Text("Save Arms")
+            } else {
+                Text("Edit Arms")
+            }
+
+        }
+        if (armsReadOnly.value) {
+            Text("Arms Saved")
+        } else {
+            Text("Arms Editable")
+        }
     }
 }
