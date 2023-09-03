@@ -26,6 +26,6 @@ fun SimulationParamManager(simulationParams: MutableState<SimulationParams>, onP
             params.numCustomers = convertedValue
             onParamChange(params)
         },
-        label = { Text("Num Trials") }
+        label = { Text("Num Customers") }
     )
 }

@@ -1,6 +1,5 @@
 package bandits.strategies
 
-import bandits.BanditArm
 import kotlinx.serialization.Serializable
 import utils.loadJson
 import kotlin.reflect.full.primaryConstructor

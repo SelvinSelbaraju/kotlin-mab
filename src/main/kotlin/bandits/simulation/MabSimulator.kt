@@ -1,4 +1,4 @@
-package bandits
+package bandits.simulation
 
 import bandits.environments.EnvironmentHistory
 import bandits.environments.MultiArmedBanditEnvironment

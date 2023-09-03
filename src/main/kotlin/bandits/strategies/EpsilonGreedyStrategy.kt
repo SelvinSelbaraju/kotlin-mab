@@ -1,8 +1,6 @@
 package bandits.strategies
 
-import bandits.BanditArm
 import java.util.Random
-import kotlin.math.max
 
 class EpsilonGreedyStrategy(var epsilon: Double, val arms: Array<String>): AbstractStrategy() {
     val random = Random()

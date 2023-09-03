@@ -1,4 +1,4 @@
-package bandits
+package bandits.simulation
 
 import org.apache.commons.math3.random.JDKRandomGenerator
 import org.apache.commons.math3.distribution.BinomialDistribution

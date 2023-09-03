@@ -1,9 +1,8 @@
 package bandits.environments
 
-import bandits.BanditArm
+import bandits.simulation.BanditArm
 import bandits.distributions.DiscreteDistribution
 import bandits.strategies.AbstractStrategy
-import kotlinx.serialization.Serializable
 
 data class EnvironmentHistory(
     val rewards: MutableList<Int>,
