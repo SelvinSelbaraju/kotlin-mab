@@ -8,18 +8,20 @@ import androidx.compose.runtime.*
 import ui_components.utils.EditButtons
 
 @Composable
-fun ArmManger(arms: MutableList<String>, armsReadOnly: MutableState<Boolean>) {
+fun ArmManger(arms: MutableList<String>, armsReadOnly: MutableState<Boolean>, onChange: (MutableList<String>) -> Unit) {
     Column {
         arms.forEachIndexed { index, arm ->
             TextField(
                 value = arm,
                 onValueChange = { it: String ->
-                    arms[index] = it
+                    val armsCopy = arms.toMutableList()
+                    armsCopy[index] = it
+                    onChange(armsCopy)
                 },
                 label = { Text("Arm $index") },
                 readOnly = armsReadOnly.value
             )
         }
-        EditButtons(armsReadOnly, arms, "Arm")
+        EditButtons(armsReadOnly, arms, "Arm", onChange)
     }
 }

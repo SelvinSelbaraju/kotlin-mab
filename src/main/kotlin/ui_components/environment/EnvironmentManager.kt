@@ -15,6 +15,7 @@ import bandits.simulation.MabSimulator
 import bandits.simulation.simulateWriteResults
 import bandits.strategies.StrategyFactory
 import ui_components.utils.ToggleButton
+import utils.loadJson
 
 @Composable
 fun EnvironmentManager() {
@@ -24,10 +25,19 @@ fun EnvironmentManager() {
     val armsReadOnly = remember { mutableStateOf(false) }
     val customersReadOnly = remember { mutableStateOf(false) }
     var results by remember { mutableStateOf("") }
+    var environment by remember { mutableStateOf(loadJson<Environment>("src/main/assets/environment.json")) }
     Column(modifier = Modifier.verticalScroll(scrollState)) {
+        UIDebugger(environment)
         Row {
-            ArmManger(arms, armsReadOnly)
-            CustomerManager(customers, customersReadOnly)
+            ArmManger(environment.arms.toMutableList(), armsReadOnly) {
+                newArms ->
+                environment = environment.copy(arms = newArms.toTypedArray())
+            }
+            CustomerManager(environment.customers.keys.toMutableList(), customersReadOnly) {
+                newCustomers ->
+                environment = environment.copy(customers = newCustomers.associateWith {
+                    environment.customers[it] ?: CustomerStats(0.0, environment.arms.associateWith { 0.0 }) })
+            }
         }
         if (armsReadOnly.value && customersReadOnly.value) {
             val customerMap = customers.map { it to CustomerStats(0.0, arms.associateWith { 0.0 }) }
@@ -35,7 +45,7 @@ fun EnvironmentManager() {
             val simulationParams = remember { mutableStateOf(SimulationParams(100,10)) }
             CustomerStatsManager(arms, customersStats)
             SimulationParamManager(simulationParams) { simulationParams.value = it }
-            val environment = Environment(simulationParams.value.numTrials, simulationParams.value.numCustomers, arms.toTypedArray(), customersStats)
+//            val environment = Environment(simulationParams.value.numTrials, simulationParams.value.numCustomers, arms.toTypedArray(), customersStats)
             Button(onClick = {
                 val strategy = StrategyFactory().getStrategyFromConfig("src/main/assets/explore_e_greedy.json", arms.toTypedArray())
                 val mab = MultiArmedBanditEnvironment("mab1", environment, strategy)

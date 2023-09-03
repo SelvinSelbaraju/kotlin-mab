@@ -9,18 +9,20 @@ import androidx.compose.runtime.*
 import ui_components.utils.EditButtons
 
 @Composable
-fun CustomerManager(customers: MutableList<String>, customersReadOnly: MutableState<Boolean>) {
+fun CustomerManager(customers: MutableList<String>, customersReadOnly: MutableState<Boolean>, onChange: (MutableList<String>) -> Unit) {
     Column {
         customers.forEachIndexed { index, arm ->
             TextField(
                 value = arm,
                 onValueChange = { it: String ->
-                    customers[index] = it
+                    val customersCopy = customers.toMutableList()
+                    customersCopy[index] = it
+                    onChange(customersCopy)
                 },
                 label = { Text("Customer $index") },
                 readOnly = customersReadOnly.value
             )
         }
-        EditButtons(customersReadOnly, customers, "Customer")
+        EditButtons(customersReadOnly, customers, "Customer", onChange)
     }
 }
