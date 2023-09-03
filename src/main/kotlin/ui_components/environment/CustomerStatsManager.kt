@@ -10,7 +10,7 @@ import bandits.environments.CustomerStats
 import ui_components.utils.convertToDouble
 
 @Composable
-fun CustomerStatsManager(arms: MutableList<String>, customers: MutableMap<String, CustomerStats>) {
+fun CustomerStatsManager(arms: MutableList<String>, customers: MutableMap<String, CustomerStats>, onChange: (MutableMap<String, CustomerStats>) -> Unit) {
     // For every customer, create text fields for each arm
     for (customer in customers) {
         Text(customer.key)
@@ -20,6 +20,7 @@ fun CustomerStatsManager(arms: MutableList<String>, customers: MutableMap<String
                 val updatedCustomerStats = customer.value.copy()
                 updatedCustomerStats.populationProb = newValue.convertToDouble()
                 customers[customer.key] = updatedCustomerStats
+                onChange(customers)
             },
             label = { Text("Population Prob") }
         )
@@ -35,6 +36,7 @@ fun CustomerStatsManager(arms: MutableList<String>, customers: MutableMap<String
 
                     // Replace the inner map in the outer state
                     customers[customer.key] = updatedCustomerStats
+                    onChange(customers)
                 },
                 label = { Text(arm) }
             )

@@ -31,7 +31,23 @@ fun EnvironmentManager() {
         Row {
             ArmManger(environment.arms.toMutableList(), armsReadOnly) {
                 newArms ->
-                environment = environment.copy(arms = newArms.toTypedArray())
+                val newCustomers = environment.customers.toMutableMap()
+                // For the first customer, check if the arm exists. If not, set it to 0.0 for all customers
+                for (arm in newArms) {
+                    val firstKey = environment.customers.keys.first()
+                    if (arm !in environment.customers[firstKey]!!.armProbs.keys.toList()) {
+                        for (customer in newCustomers) {
+                            val armProbsCopy = customer.value.armProbs.toMutableMap()
+                            armProbsCopy[arm] = 0.0
+                            newCustomers[customer.key]!!.armProbs = armProbsCopy
+                        }
+                    }
+                }
+                // Remove all arms not in arms
+                for (customer in newCustomers) {
+                    newCustomers[customer.key]!!.armProbs = newCustomers[customer.key]!!.armProbs.filterKeys { it in newArms }
+                }
+                environment = environment.copy(arms = newArms.toTypedArray(), customers = newCustomers)
             }
             CustomerManager(environment.customers.keys.toMutableList(), customersReadOnly) {
                 newCustomers ->
@@ -40,11 +56,13 @@ fun EnvironmentManager() {
             }
         }
         if (armsReadOnly.value && customersReadOnly.value) {
-            val customerMap = customers.map { it to CustomerStats(0.0, arms.associateWith { 0.0 }) }
-            val customersStats = remember { mutableStateMapOf(*customerMap.toTypedArray()) }
-            val simulationParams = remember { mutableStateOf(SimulationParams(100,10)) }
-            CustomerStatsManager(arms, customersStats)
-            SimulationParamManager(simulationParams) { simulationParams.value = it }
+            // If an arm doesn't exist in customers, create it
+
+            CustomerStatsManager(environment.arms.toMutableList(), environment.customers.toMutableMap()) {
+                newCustomerStats ->
+                environment.customers = newCustomerStats
+            }
+//            SimulationParamManager(simulationParams) { simulationParams.value = it }
 //            val environment = Environment(simulationParams.value.numTrials, simulationParams.value.numCustomers, arms.toTypedArray(), customersStats)
             Button(onClick = {
                 val strategy = StrategyFactory().getStrategyFromConfig("src/main/assets/explore_e_greedy.json", arms.toTypedArray())
