@@ -20,8 +20,6 @@ import utils.loadJson
 @Composable
 fun EnvironmentManager() {
     val scrollState = rememberScrollState()
-    val arms = remember { mutableStateListOf("New Arm") }
-    val customers = remember { mutableStateListOf("New Customer") }
     val armsReadOnly = remember { mutableStateOf(false) }
     val customersReadOnly = remember { mutableStateOf(false) }
     var results by remember { mutableStateOf("") }
@@ -55,16 +53,13 @@ fun EnvironmentManager() {
             }
         }
         if (armsReadOnly.value && customersReadOnly.value) {
-            // If an arm doesn't exist in customers, create it
-
             CustomerStatsManager(environment.arms.toMutableList(), environment.customers.toMutableMap()) {
                 newCustomerStats ->
                 environment = environment.copy(customers = newCustomerStats)
             }
             SimulationParamManager(SimulationParams(environment.numTrials, environment.numCustomers)) { newParams -> environment = environment.copy(numTrials = newParams.numTrials, numCustomers = newParams.numCustomers) }
-//            val environment = Environment(simulationParams.value.numTrials, simulationParams.value.numCustomers, arms.toTypedArray(), customersStats)
             Button(onClick = {
-                val strategy = StrategyFactory().getStrategyFromConfig("src/main/assets/explore_e_greedy.json", arms.toTypedArray())
+                val strategy = StrategyFactory().getStrategyFromConfig("src/main/assets/explore_e_greedy.json", environment.arms)
                 val mab = MultiArmedBanditEnvironment("mab1", environment, strategy)
                 val simulators = arrayOf(
                     MabSimulator(mab, environment.numTrials, environment.numCustomers)
