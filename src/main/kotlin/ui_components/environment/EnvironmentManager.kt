@@ -27,7 +27,6 @@ fun EnvironmentManager() {
     var results by remember { mutableStateOf("") }
     var environment by remember { mutableStateOf(loadJson<Environment>("src/main/assets/environment.json")) }
     Column(modifier = Modifier.verticalScroll(scrollState)) {
-        UIDebugger(environment)
         Row {
             ArmManger(environment.arms.toMutableList(), armsReadOnly) {
                 newArms ->
@@ -60,9 +59,9 @@ fun EnvironmentManager() {
 
             CustomerStatsManager(environment.arms.toMutableList(), environment.customers.toMutableMap()) {
                 newCustomerStats ->
-                environment.customers = newCustomerStats
+                environment = environment.copy(customers = newCustomerStats)
             }
-//            SimulationParamManager(simulationParams) { simulationParams.value = it }
+            SimulationParamManager(SimulationParams(environment.numTrials, environment.numCustomers)) { newParams -> environment = environment.copy(numTrials = newParams.numTrials, numCustomers = newParams.numCustomers) }
 //            val environment = Environment(simulationParams.value.numTrials, simulationParams.value.numCustomers, arms.toTypedArray(), customersStats)
             Button(onClick = {
                 val strategy = StrategyFactory().getStrategyFromConfig("src/main/assets/explore_e_greedy.json", arms.toTypedArray())
