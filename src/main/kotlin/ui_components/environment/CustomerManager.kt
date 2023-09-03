@@ -6,6 +6,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
+import ui_components.utils.EditButtons
 
 @Composable
 fun CustomerManager(customers: MutableList<String>, customersReadOnly: MutableState<Boolean>) {
@@ -20,28 +21,6 @@ fun CustomerManager(customers: MutableList<String>, customersReadOnly: MutableSt
                 readOnly = customersReadOnly.value
             )
         }
-        Button(onClick = { if (!customersReadOnly.value) {
-            customers.add("New Customer")
-        } }) {
-            Text("Add Customer")
-        }
-        Button(onClick = { if (!customersReadOnly.value) {
-            customers.removeLast()
-        } }) {
-            Text("Delete")
-        }
-        Button(onClick = { customersReadOnly.value = !customersReadOnly.value }) {
-            if (!customersReadOnly.value) {
-                Text("Save Customers")
-            } else {
-                Text("Edit Customers")
-            }
-
-        }
-        if (customersReadOnly.value) {
-            Text("Customers Saved")
-        } else {
-            Text("Customers Editable")
-        }
+        EditButtons(customersReadOnly, customers, "Customer")
     }
 }

@@ -4,6 +4,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import ui_components.utils.convertToDouble
+import ui_components.utils.convertToInt
 
 data class SimulationParams(var numTrials: Int, var numCustomers: Int)
 
@@ -13,8 +15,7 @@ fun SimulationParamManager(simulationParams: MutableState<SimulationParams>, onP
     TextField(
         value = params.numTrials.toString(),
         onValueChange = { newValue: String ->
-            val convertedValue = newValue.toIntOrNull() ?: 0
-            params.numTrials = convertedValue
+            params.numTrials = newValue.convertToInt()
             onParamChange(params)
         },
         label = { Text("Num Trials") }
@@ -22,8 +23,7 @@ fun SimulationParamManager(simulationParams: MutableState<SimulationParams>, onP
     TextField(
         value = params.numCustomers.toString(),
         onValueChange = { newValue: String ->
-            val convertedValue = newValue.toIntOrNull() ?: 0
-            params.numCustomers = convertedValue
+            params.numCustomers = newValue.convertToInt()
             onParamChange(params)
         },
         label = { Text("Num Customers") }

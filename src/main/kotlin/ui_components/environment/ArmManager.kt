@@ -5,6 +5,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
+import ui_components.utils.EditButtons
 
 @Composable
 fun ArmManger(arms: MutableList<String>, armsReadOnly: MutableState<Boolean>) {
@@ -19,28 +20,6 @@ fun ArmManger(arms: MutableList<String>, armsReadOnly: MutableState<Boolean>) {
                 readOnly = armsReadOnly.value
             )
         }
-        Button(onClick = { if (!armsReadOnly.value) {
-            arms.add("New Arm")
-        } }) {
-            Text("Add Arm")
-        }
-        Button(onClick = { if (!armsReadOnly.value) {
-            arms.removeLast()
-        } }) {
-            Text("Delete")
-        }
-        Button(onClick = { armsReadOnly.value = !armsReadOnly.value }) {
-            if (!armsReadOnly.value) {
-                Text("Save Arms")
-            } else {
-                Text("Edit Arms")
-            }
-
-        }
-        if (armsReadOnly.value) {
-            Text("Arms Saved")
-        } else {
-            Text("Arms Editable")
-        }
+        EditButtons(armsReadOnly, arms, "Arm")
     }
 }

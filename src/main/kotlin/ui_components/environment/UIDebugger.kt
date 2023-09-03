@@ -8,12 +8,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import bandits.environments.Environment
 
-// Display Environment as Text on Screen for debugging
+// Display Environment as text on screen for debugging
 @Composable
 fun UIDebugger(environment: Environment) {
     Text("Environment Debugger")
-    Text("Num Trials: ${environment.numTrials.toString()}")
-    Text("Num Customers: ${environment.numCustomers.toString()}")
+    Text("Num Trials: ${environment.numTrials}")
+    Text("Num Customers: ${environment.numCustomers}")
     Row {
         environment.arms.forEachIndexed { index, arm ->
             Text("Arm ${index}: $arm", modifier = Modifier.padding(end=5.dp))

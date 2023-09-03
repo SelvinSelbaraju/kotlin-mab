@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import bandits.environments.CustomerStats
+import ui_components.utils.convertToDouble
 
 @Composable
 fun CustomerStatsManager(arms: MutableList<String>, customers: MutableMap<String, CustomerStats>) {
@@ -16,9 +17,8 @@ fun CustomerStatsManager(arms: MutableList<String>, customers: MutableMap<String
         TextField(
             value = customer.value.populationProb.toString(),
             onValueChange = { newValue ->
-                val convertedValue = newValue.toDoubleOrNull() ?: 0.0
                 val updatedCustomerStats = customer.value.copy()
-                updatedCustomerStats.populationProb = convertedValue
+                updatedCustomerStats.populationProb = newValue.convertToDouble()
                 customers[customer.key] = updatedCustomerStats
             },
             label = { Text("Population Prob") }
@@ -27,12 +27,10 @@ fun CustomerStatsManager(arms: MutableList<String>, customers: MutableMap<String
             TextField(
                 value = customer.value.armProbs[arm].toString(),
                 onValueChange = { newValue ->
-                    val convertedValue = newValue.toDoubleOrNull() ?: 0.0
-
                     // Create a new inner map and update the value
                     val updatedCustomerStats = customer.value.copy()
                     val updatedInnerMap = updatedCustomerStats.armProbs.toMutableMap()
-                    updatedInnerMap[arm] = convertedValue
+                    updatedInnerMap[arm] = newValue.convertToDouble()
                     updatedCustomerStats.armProbs = updatedInnerMap
 
                     // Replace the inner map in the outer state
