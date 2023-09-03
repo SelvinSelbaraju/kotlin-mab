@@ -27,6 +27,7 @@ fun main() = singleWindowApplication {
     val armsReadOnly = remember { mutableStateOf(false) }
     val customersReadOnly = remember { mutableStateOf(false) }
     var results by remember { mutableStateOf("Results") }
+    var showDebugger by remember { mutableStateOf(false) }
     Column(modifier = Modifier.verticalScroll(scrollState)) {
         Row {
             ArmManger(arms, armsReadOnly)
@@ -50,16 +51,16 @@ fun main() = singleWindowApplication {
                 Text("Start Simulation")
             }
             Text(results)
+            Button(onClick = { showDebugger = !showDebugger }) {
+                when (showDebugger) {
+                    true -> Text("Hide Environment Debugger")
+                    false -> Text("Show Environment Debugger")
+                }
+            }
+            if (showDebugger) {
+                UIDebugger(environment)
+            }
 
-//            Text(environment.numTrials.toString())
-//            Text(environment.numCustomers.toString())
-//            for (arm in arms) {
-//                Text(arm)
-//            }
-//            for (customer in customersStats) {
-//                Text(customer.value.armProbs.toString())
-//                Text(customer.value.populationProb.toString())
-//            }
         }
     }
 
