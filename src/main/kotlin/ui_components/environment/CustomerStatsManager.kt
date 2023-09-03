@@ -9,9 +9,7 @@ import androidx.compose.runtime.remember
 import bandits.environments.CustomerStats
 
 @Composable
-fun CustomerStatsManager(arms: MutableList<String>, customerList: MutableList<String>) {
-    val customerMap = customerList.map { it to CustomerStats(0.0, arms.associateWith { 0.0 })}
-    val customers = remember { mutableStateMapOf(*customerMap.toTypedArray()) }
+fun CustomerStatsManager(arms: MutableList<String>, customers: MutableMap<String, CustomerStats>) {
     // For every customer, create text fields for each arm
     for (customer in customers) {
         Text(customer.key)
