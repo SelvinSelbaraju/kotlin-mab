@@ -1,6 +1,5 @@
 package bandits.strategies
 
-import bandits.BanditArm
 import org.apache.commons.math3.random.JDKRandomGenerator
 import org.apache.commons.math3.distribution.BetaDistribution
 

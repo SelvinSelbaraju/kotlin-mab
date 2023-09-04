@@ -1,7 +1,5 @@
 package bandits.strategies
 
-import bandits.BanditArm
-
 data class ArmInfo(
     var alpha: Double,
     var beta: Double,
