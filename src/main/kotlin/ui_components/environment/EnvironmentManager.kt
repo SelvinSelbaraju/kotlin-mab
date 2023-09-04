@@ -30,7 +30,7 @@ fun EnvironmentManager() {
     var errorText by remember { mutableStateOf("") }
     Column(modifier = Modifier.verticalScroll(scrollState)) {
         Row {
-            ArmManger(environment.arms.toMutableList(), armsReadOnly) {
+            ListManager(environment.arms.toMutableList(), "Cuisine", armsReadOnly, 7) {
                 newArms ->
                 val newCustomers = environment.customers.toMutableMap()
                 // For the first customer, check if the arm exists. If not, set it to 0.0 for all customers
@@ -50,7 +50,7 @@ fun EnvironmentManager() {
                 }
                 environment = environment.copy(arms = newArms.toTypedArray(), customers = newCustomers)
             }
-            CustomerManager(environment.customers.keys.toMutableList(), customersReadOnly) {
+            ListManager(environment.customers.keys.toMutableList(), "Customer", customersReadOnly, 5) {
                 newCustomers ->
                 environment = environment.copy(customers = newCustomers.associateWith {
                     environment.customers[it] ?: CustomerStats(0.0, environment.arms.associateWith { 0.0 }) })

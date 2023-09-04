@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 
 @Composable
-fun EditButtons(isReadOnly: MutableState<Boolean>, objectList: MutableList<String>, objectText: String, onChange: (MutableList<String>) -> Unit, maxObjects: Int = 10) {
+fun EditButtons(isReadOnly: MutableState<Boolean>, objectList: MutableList<String>, objectText: String, onChange: (MutableList<String>) -> Unit, maxObjects: Int) {
     Button(enabled = (!isReadOnly.value && objectList.size < maxObjects),onClick = {
         val listCopy = objectList.toMutableList()
         listCopy.add("New $objectText")
