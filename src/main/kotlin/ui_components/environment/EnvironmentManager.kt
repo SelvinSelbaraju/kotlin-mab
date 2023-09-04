@@ -14,7 +14,9 @@ import bandits.environments.MultiArmedBanditEnvironment
 import bandits.simulation.MabSimulator
 import bandits.simulation.simulateWriteResults
 import bandits.strategies.StrategyFactory
+import ui_components.utils.ErrorMessage
 import ui_components.utils.ToggleButton
+import utils.checkPopulationProbs
 import utils.loadJson
 
 @Composable
@@ -24,6 +26,8 @@ fun EnvironmentManager() {
     val customersReadOnly = remember { mutableStateOf(false) }
     var results by remember { mutableStateOf("") }
     var environment by remember { mutableStateOf(loadJson<Environment>("src/main/assets/environment.json")) }
+    var isError by remember { mutableStateOf(false) }
+    var errorText by remember { mutableStateOf("") }
     Column(modifier = Modifier.verticalScroll(scrollState)) {
         Row {
             ArmManger(environment.arms.toMutableList(), armsReadOnly) {
@@ -56,9 +60,12 @@ fun EnvironmentManager() {
             CustomerStatsManager(environment.arms.toMutableList(), environment.customers.toMutableMap()) {
                 newCustomerStats ->
                 environment = environment.copy(customers = newCustomerStats)
+                val (probsValid, probsErrorText) = checkPopulationProbs(environment.customers)
+                isError = !probsValid
+                errorText = probsErrorText
             }
             SimulationParamManager(SimulationParams(environment.numTrials, environment.numCustomers)) { newParams -> environment = environment.copy(numTrials = newParams.numTrials, numCustomers = newParams.numCustomers) }
-            Button(onClick = {
+            Button(enabled = !isError, onClick = {
                 val strategy = StrategyFactory().getStrategyFromConfig("src/main/assets/explore_e_greedy.json", environment.arms)
                 val mab = MultiArmedBanditEnvironment("mab1", environment, strategy)
                 val simulators = arrayOf(
@@ -68,6 +75,7 @@ fun EnvironmentManager() {
             }) {
                 Text("Start Simulation")
             }
+            ErrorMessage(isError, errorText)
             Text("Results: $results")
             ToggleButton(componentText = "Debugger") {
                 UIDebugger(environment)
