@@ -23,13 +23,20 @@ import utils.loadJson
 
 @Composable
 fun EnvironmentManager() {
+    val defaultEnvironment = loadJson<Environment>("src/main/assets/environment.json")
     val scrollState = rememberScrollState()
     val armsReadOnly = remember { mutableStateOf(false) }
     val customersReadOnly = remember { mutableStateOf(false) }
     var results by remember { mutableStateOf("") }
-    var environment by remember { mutableStateOf(loadJson<Environment>("src/main/assets/environment.json")) }
+    var environment by remember { mutableStateOf(defaultEnvironment) }
     var statsErrors by remember { mutableStateOf(ErrorsCustomerStats()) }
     Column(modifier = Modifier.verticalScroll(scrollState)) {
+        Button(enabled = (environment != defaultEnvironment), onClick = {
+            environment = loadJson<Environment>("src/main/assets/environment.json")
+            statsErrors = validateCustomerStats(environment.customers)
+        }) {
+            Text("Reset to Default Environment")
+        }
         Row {
             ListManager(environment.arms.toMutableList(), "Cuisine", armsReadOnly, 7) {
                 newArms ->
