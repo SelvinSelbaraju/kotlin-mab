@@ -10,6 +10,7 @@ import ui_components.utils.EditButtons
 
 @Composable
 fun CustomerManager(customers: MutableList<String>, customersReadOnly: MutableState<Boolean>, onChange: (MutableList<String>) -> Unit) {
+    val maxObjects = 5
     Column {
         customers.forEachIndexed { index, arm ->
             TextField(
@@ -23,6 +24,6 @@ fun CustomerManager(customers: MutableList<String>, customersReadOnly: MutableSt
                 readOnly = customersReadOnly.value
             )
         }
-        EditButtons(customersReadOnly, customers, "Customer", onChange)
+        EditButtons(customersReadOnly, customers, "Customer", onChange, maxObjects = maxObjects)
     }
 }

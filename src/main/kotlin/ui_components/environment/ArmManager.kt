@@ -9,6 +9,7 @@ import ui_components.utils.EditButtons
 
 @Composable
 fun ArmManger(arms: MutableList<String>, armsReadOnly: MutableState<Boolean>, onChange: (MutableList<String>) -> Unit) {
+    val maxObjects = 7
     Column {
         arms.forEachIndexed { index, arm ->
             TextField(
@@ -22,6 +23,6 @@ fun ArmManger(arms: MutableList<String>, armsReadOnly: MutableState<Boolean>, on
                 readOnly = armsReadOnly.value
             )
         }
-        EditButtons(armsReadOnly, arms, "Arm", onChange)
+        EditButtons(armsReadOnly, arms, "Arm", onChange, maxObjects = maxObjects)
     }
 }
