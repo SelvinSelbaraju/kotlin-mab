@@ -1,7 +1,10 @@
-package utils
+package ui_components.environment.validation
 
 import bandits.environments.CustomerStats
 
+fun validateCustomerStats(customerStats: Map<String, CustomerStats>): Pair<Boolean, String> {
+    return checkPopulationProbs(customerStats)
+}
 fun checkPopulationProbs(customerStats: Map<String, CustomerStats>): Pair<Boolean, String> {
     var probsValid = true
     var errorText = ""

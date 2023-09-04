@@ -14,9 +14,10 @@ import bandits.environments.MultiArmedBanditEnvironment
 import bandits.simulation.MabSimulator
 import bandits.simulation.simulateWriteResults
 import bandits.strategies.StrategyFactory
+import ui_components.environment.validation.validateArms
+import ui_components.environment.validation.validateCustomerStats
 import ui_components.utils.ErrorMessage
 import ui_components.utils.ToggleButton
-import utils.checkPopulationProbs
 import utils.loadJson
 
 @Composable
@@ -32,26 +33,12 @@ fun EnvironmentManager() {
         Row {
             ListManager(environment.arms.toMutableList(), "Cuisine", armsReadOnly, 7) {
                 newArms ->
-                val newCustomers = environment.customers.toMutableMap()
-                // For the first customer, check if the arm exists. If not, set it to 0.0 for all customers
-                for (arm in newArms) {
-                    val firstKey = environment.customers.keys.first()
-                    if (arm !in environment.customers[firstKey]!!.armProbs.keys.toList()) {
-                        for (customer in newCustomers) {
-                            val armProbsCopy = customer.value.armProbs.toMutableMap()
-                            armProbsCopy[arm] = 0.0
-                            newCustomers[customer.key]!!.armProbs = armProbsCopy
-                        }
-                    }
-                }
-                // Remove all arms not in arms
-                for (customer in newCustomers) {
-                    newCustomers[customer.key]!!.armProbs = newCustomers[customer.key]!!.armProbs.filterKeys { it in newArms }
-                }
+                val newCustomers = validateArms(newArms, environment)
                 environment = environment.copy(arms = newArms.toTypedArray(), customers = newCustomers)
             }
             ListManager(environment.customers.keys.toMutableList(), "Customer", customersReadOnly, 5) {
                 newCustomers ->
+                // If a customer doesn't exist, create customer stats with below defaults
                 environment = environment.copy(customers = newCustomers.associateWith {
                     environment.customers[it] ?: CustomerStats(0.0, environment.arms.associateWith { 0.0 }) })
             }
@@ -60,9 +47,9 @@ fun EnvironmentManager() {
             CustomerStatsManager(environment.arms.toMutableList(), environment.customers.toMutableMap()) {
                 newCustomerStats ->
                 environment = environment.copy(customers = newCustomerStats)
-                val (probsValid, probsErrorText) = checkPopulationProbs(environment.customers)
-                isError = !probsValid
-                errorText = probsErrorText
+                val (statsValid, statsErrorText) = validateCustomerStats(environment.customers)
+                isError = !statsValid
+                errorText = statsErrorText
             }
             SimulationParamManager(SimulationParams(environment.numTrials, environment.numCustomers)) { newParams -> environment = environment.copy(numTrials = newParams.numTrials, numCustomers = newParams.numCustomers) }
             Button(enabled = !isError, onClick = {
