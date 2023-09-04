@@ -2,11 +2,38 @@ package ui_components.environment.validation
 
 import bandits.environments.CustomerStats
 
-fun validateCustomerStats(customerStats: Map<String, CustomerStats>): Pair<Boolean, String> {
-    return checkPopulationProbs(customerStats)
+data class ErrorsCustomerStats(var populationProbs: String? = null, var armProbs: String? = null)
+
+fun validateCustomerStats(customerStats: Map<String, CustomerStats>): ErrorsCustomerStats {
+    val populationProbsValid = checkPopulationProbs(customerStats)
+    val armProbsValid = checkArmProbs(customerStats)
+    return ErrorsCustomerStats(
+        populationProbsValid,
+        armProbsValid
+    )
 }
-fun checkPopulationProbs(customerStats: Map<String, CustomerStats>): Pair<Boolean, String> {
-    var probsValid = true
+
+fun checkArmProbs(customerStats: Map<String, CustomerStats>): String? {
+    val invalidArmProbs = mutableMapOf<String, MutableMap<String,Double> >()
+    for (customer in customerStats) {
+        for (arm in customer.value.armProbs) {
+            if (arm.value < 0.0 || arm.value > 1.0) {
+                if (!invalidArmProbs[customer.key].isNullOrEmpty()) {
+                    invalidArmProbs[customer.key]!![arm.key] = arm.value
+                } else {
+                    invalidArmProbs[customer.key] = mutableMapOf(arm.key to arm.value)
+                }
+            }
+        }
+    }
+    return if (invalidArmProbs.isNotEmpty()) {
+        "Invalid Arm Probs: $invalidArmProbs"
+    } else {
+        null
+    }
+}
+
+fun checkPopulationProbs(customerStats: Map<String, CustomerStats>): String? {
     var errorText = ""
     val invalidCustomers = mutableMapOf<String, Double>()
     var probTotal = 0.0
@@ -20,11 +47,9 @@ fun checkPopulationProbs(customerStats: Map<String, CustomerStats>): Pair<Boolea
         }
     }
     if(invalidCustomers.isEmpty() && probTotal != 1.0) {
-        probsValid = false
         errorText = "Population Probabilities must sum to 1.0!"
     } else if (invalidCustomers.isNotEmpty()) {
-        probsValid = false
         errorText = "Invalid Probabilities: $invalidCustomers"
     }
-    return Pair(probsValid, errorText)
+    return errorText
 }
