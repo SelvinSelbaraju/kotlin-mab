@@ -1,0 +1,6 @@
+{
+  "maxArms": 5,
+  "maxCustomers": 3,
+  "maxTrials": 1000,
+  "maxSteps": 1000
+}
