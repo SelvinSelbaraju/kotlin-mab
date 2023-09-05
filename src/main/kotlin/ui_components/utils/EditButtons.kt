@@ -6,19 +6,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 
 @Composable
-fun EditButtons(isReadOnly: MutableState<Boolean>, objectList: MutableList<String>, objectText: String, onChange: (MutableList<String>) -> Unit) {
-    Button(onClick = { if (!isReadOnly.value) {
+fun EditButtons(isReadOnly: MutableState<Boolean>, objectList: MutableList<String>, objectText: String, onChange: (MutableList<String>) -> Unit, maxObjects: Int) {
+    Button(enabled = (!isReadOnly.value && objectList.size < maxObjects),onClick = {
         val listCopy = objectList.toMutableList()
-        listCopy.add("New $objectText")
+        listCopy.add("$objectText ${objectList.size + 1}")
         onChange(listCopy)
-    } }) {
+    }) {
         Text("Add $objectText")
     }
-    Button(onClick = { if (!isReadOnly.value) {
+    Button(enabled = (!isReadOnly.value && objectList.size > 1), onClick = {
         val listCopy = objectList.toMutableList()
         listCopy.removeLast()
         onChange(listCopy)
-    } }) {
+    }) {
         Text("Delete $objectText")
     }
     Button(onClick = { isReadOnly.value = !isReadOnly.value  }) {
@@ -27,10 +27,5 @@ fun EditButtons(isReadOnly: MutableState<Boolean>, objectList: MutableList<Strin
         } else {
             Text("Save ${objectText}s")
         }
-    }
-    if (isReadOnly.value) {
-        Text("${objectText}s Saved")
-    } else {
-        Text("${objectText}s Editable")
     }
 }

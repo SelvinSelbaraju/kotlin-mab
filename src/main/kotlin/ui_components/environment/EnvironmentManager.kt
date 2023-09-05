@@ -14,40 +14,40 @@ import bandits.environments.MultiArmedBanditEnvironment
 import bandits.simulation.MabSimulator
 import bandits.simulation.simulateWriteResults
 import bandits.strategies.StrategyFactory
+import ui_components.environment.validation.*
+import ui_components.utils.ErrorMessage
+import ui_components.utils.Errors
 import ui_components.utils.ToggleButton
 import utils.loadJson
 
 @Composable
 fun EnvironmentManager() {
+    val environmentConstraints = loadJson<EnvironmentConstraints>("src/main/assets/environment_constraints.json")
     val scrollState = rememberScrollState()
     val armsReadOnly = remember { mutableStateOf(false) }
     val customersReadOnly = remember { mutableStateOf(false) }
     var results by remember { mutableStateOf("") }
     var environment by remember { mutableStateOf(loadJson<Environment>("src/main/assets/environment.json")) }
+    var errors by remember { mutableStateOf(Errors()) }
     Column(modifier = Modifier.verticalScroll(scrollState)) {
+        Button(onClick = {
+            environment = loadJson<Environment>("src/main/assets/environment.json")
+            errors = errors.copy(customerStats = validateCustomerStats(environment.customers), simulationParams = validateSimulationParams(environment.numTrials, environment.numCustomers, environmentConstraints))
+        }) {
+            Text("Reset to Default Environment")
+        }
+        ToggleButton(componentText = "Instructions") {
+            EnvironmentInstructions()
+        }
         Row {
-            ArmManger(environment.arms.toMutableList(), armsReadOnly) {
+            ListManager(environment.arms.toMutableList(), "Cuisine", armsReadOnly, environmentConstraints.maxArms) {
                 newArms ->
-                val newCustomers = environment.customers.toMutableMap()
-                // For the first customer, check if the arm exists. If not, set it to 0.0 for all customers
-                for (arm in newArms) {
-                    val firstKey = environment.customers.keys.first()
-                    if (arm !in environment.customers[firstKey]!!.armProbs.keys.toList()) {
-                        for (customer in newCustomers) {
-                            val armProbsCopy = customer.value.armProbs.toMutableMap()
-                            armProbsCopy[arm] = 0.0
-                            newCustomers[customer.key]!!.armProbs = armProbsCopy
-                        }
-                    }
-                }
-                // Remove all arms not in arms
-                for (customer in newCustomers) {
-                    newCustomers[customer.key]!!.armProbs = newCustomers[customer.key]!!.armProbs.filterKeys { it in newArms }
-                }
+                val newCustomers = validateArms(newArms, environment)
                 environment = environment.copy(arms = newArms.toTypedArray(), customers = newCustomers)
             }
-            CustomerManager(environment.customers.keys.toMutableList(), customersReadOnly) {
+            ListManager(environment.customers.keys.toMutableList(), "Customer", customersReadOnly, environmentConstraints.maxCustomers) {
                 newCustomers ->
+                // If a customer doesn't exist, create customer stats with below defaults
                 environment = environment.copy(customers = newCustomers.associateWith {
                     environment.customers[it] ?: CustomerStats(0.0, environment.arms.associateWith { 0.0 }) })
             }
@@ -56,9 +56,14 @@ fun EnvironmentManager() {
             CustomerStatsManager(environment.arms.toMutableList(), environment.customers.toMutableMap()) {
                 newCustomerStats ->
                 environment = environment.copy(customers = newCustomerStats)
+                errors = errors.copy(customerStats = validateCustomerStats(environment.customers))
             }
-            SimulationParamManager(SimulationParams(environment.numTrials, environment.numCustomers)) { newParams -> environment = environment.copy(numTrials = newParams.numTrials, numCustomers = newParams.numCustomers) }
-            Button(onClick = {
+            SimulationParamManager(SimulationParams(environment.numTrials, environment.numCustomers)) {
+                newParams ->
+                environment = environment.copy(numTrials = newParams.numTrials, numCustomers = newParams.numCustomers)
+                errors = errors.copy(simulationParams = validateSimulationParams(environment.numTrials, environment.numCustomers, environmentConstraints))
+            }
+            Button(enabled = (errors.customerStats.populationProbs.isNullOrBlank() && errors.customerStats.armProbs.isNullOrBlank() && errors.simulationParams.numTrials.isNullOrBlank() && errors.simulationParams.numSteps.isNullOrBlank()), onClick = {
                 val strategy = StrategyFactory().getStrategyFromConfig("src/main/assets/explore_e_greedy.json", environment.arms)
                 val mab = MultiArmedBanditEnvironment("mab1", environment, strategy)
                 val simulators = arrayOf(
@@ -68,6 +73,7 @@ fun EnvironmentManager() {
             }) {
                 Text("Start Simulation")
             }
+            ErrorMessage(errors)
             Text("Results: $results")
             ToggleButton(componentText = "Debugger") {
                 UIDebugger(environment)
