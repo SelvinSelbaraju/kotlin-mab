@@ -28,9 +28,4 @@ fun EditButtons(isReadOnly: MutableState<Boolean>, objectList: MutableList<Strin
             Text("Save ${objectText}s")
         }
     }
-    if (isReadOnly.value) {
-        Text("${objectText}s Saved")
-    } else {
-        Text("${objectText}s Editable")
-    }
 }
