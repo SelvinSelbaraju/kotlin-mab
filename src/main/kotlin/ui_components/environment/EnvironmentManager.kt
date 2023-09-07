@@ -53,6 +53,7 @@ fun EnvironmentManager() {
             }
         }
         if (armsReadOnly.value && customersReadOnly.value) {
+            errors = errors.copy(customerStats = validateCustomerStats(environment.customers), simulationParams = validateSimulationParams(environment.numTrials, environment.numCustomers, environmentConstraints))
             CustomerStatsManager(environment.arms.toMutableList(), environment.customers.toMutableMap()) {
                 newCustomerStats ->
                 environment = environment.copy(customers = newCustomerStats)
