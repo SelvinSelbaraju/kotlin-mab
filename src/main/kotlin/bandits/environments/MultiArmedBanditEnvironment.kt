@@ -30,11 +30,20 @@ class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val 
 
     fun step() {
         val sampledCustomer = customerDistribution.sample()
-        val armName = strategy.pickArm(sampledCustomer)
+        // If not contextual, hide customer type
+        val armName = if (strategy.isContextual) {
+            strategy.pickArm(sampledCustomer)
+        } else {
+            strategy.pickArm()
+        }
         val trueMean = customers[sampledCustomer]!!.armProbs[armName]!!
         val reward = BanditArm(trueMean).pullArm()
         storeResults(sampledCustomer, armName, trueMean, reward)
-        strategy.updateStrategy(reward, armName, sampledCustomer)
+        if (strategy.isContextual) {
+            strategy.updateStrategy(reward, armName, sampledCustomer)
+        } else {
+            strategy.updateStrategy(reward, armName)
+        }
     }
 
     fun resetMab() {

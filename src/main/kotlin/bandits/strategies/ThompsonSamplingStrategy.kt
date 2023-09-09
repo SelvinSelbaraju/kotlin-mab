@@ -1,12 +1,11 @@
 package bandits.strategies
 
-import org.apache.commons.math3.random.JDKRandomGenerator
 import org.apache.commons.math3.distribution.BetaDistribution
 
 
 
 
-class ThompsonSamplingStrategy(arms: Array<String>): AbstractStrategy(arms) {
+class ThompsonSamplingStrategy(arms: Array<String>, isContextual: Boolean): AbstractStrategy(arms, isContextual) {
     override fun updateStrategy(reward: Int, armName: String, sampledCustomer: String) {
         val customerDistributions = armDistributions[sampledCustomer]!!
         if (reward > 0) {

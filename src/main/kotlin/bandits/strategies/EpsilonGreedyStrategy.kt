@@ -1,8 +1,6 @@
 package bandits.strategies
 
-import java.util.Random
-
-class EpsilonGreedyStrategy(var epsilon: Double, arms: Array<String>): AbstractStrategy(arms) {
+class EpsilonGreedyStrategy(private var epsilon: Double, arms: Array<String>, isContextual: Boolean): AbstractStrategy(arms, isContextual) {
     var numExplores = 0
     init {
         updateInvalidEpsilon()

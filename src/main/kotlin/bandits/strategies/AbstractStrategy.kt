@@ -7,17 +7,18 @@ data class ArmInfo(
     var alpha: Double,
     var beta: Double,
 )
-abstract class AbstractStrategy(val arms: Array<String>) {
+abstract class AbstractStrategy(val arms: Array<String>, val isContextual: Boolean = false) {
+    private val defaultCustomer = "default"
     val random = JDKRandomGenerator()
-    var armDistributions = mutableMapOf("default" to arms.associateWith { ArmInfo(1.0, 1.0) })
-    open var bestArms = mutableMapOf("default" to arms[random.nextInt(arms.size)])
+    var armDistributions = mutableMapOf(defaultCustomer to arms.associateWith { ArmInfo(1.0, 1.0) })
+    open var bestArms = mutableMapOf(defaultCustomer to arms[random.nextInt(arms.size)])
 
-    abstract fun updateStrategy(reward: Int, armName: String, sampledCustomer: String)
+    abstract fun updateStrategy(reward: Int, armName: String, sampledCustomer: String = defaultCustomer)
     open fun resetStrategy() {
-        armDistributions = mutableMapOf("default" to arms.associateWith { ArmInfo(1.0, 1.0) })
-        bestArms = mutableMapOf("default" to arms[random.nextInt(arms.size)])
+        armDistributions = mutableMapOf(defaultCustomer to arms.associateWith { ArmInfo(1.0, 1.0) })
+        bestArms = mutableMapOf(defaultCustomer to arms[random.nextInt(arms.size)])
     }
-    abstract fun pickArm(sampledCustomer: String): String
+    abstract fun pickArm(sampledCustomer: String = defaultCustomer): String
     protected fun getDefaultArmDistributions(arms: Array<String>): MutableMap<String, ArmInfo> {
         return arms.associateWith { ArmInfo(1.0, 1.0) }.toMutableMap()
     }
