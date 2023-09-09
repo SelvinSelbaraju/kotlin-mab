@@ -30,11 +30,11 @@ class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val 
 
     fun step() {
         val sampledCustomer = customerDistribution.sample()
-        val armName = strategy.pickArm()
+        val armName = strategy.pickArm(sampledCustomer)
         val trueMean = customers[sampledCustomer]!!.armProbs[armName]!!
         val reward = BanditArm(trueMean).pullArm()
         storeResults(sampledCustomer, armName, trueMean, reward)
-        strategy.updateStrategy(reward, armName)
+        strategy.updateStrategy(reward, armName, sampledCustomer)
     }
 
     fun resetMab() {

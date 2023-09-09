@@ -5,8 +5,8 @@ import java.util.Random
 class EpsilonGreedyStrategy(var epsilon: Double, val arms: Array<String>): AbstractStrategy() {
     val random = Random()
     var numExplores = 0
-    var armDistributions = resetArmDistributions(arms)
-    var bestArm = arms[random.nextInt(arms.size)]
+    var armDistributions = mutableMapOf("default" to arms.associateWith { ArmInfo(1.0, 1.0) })
+    var bestArms = mutableMapOf("default" to arms[random.nextInt(arms.size)])
     init {
         updateInvalidEpsilon()
     }
@@ -21,31 +21,36 @@ class EpsilonGreedyStrategy(var epsilon: Double, val arms: Array<String>): Abstr
 
     override fun resetStrategy() {
         numExplores = 0
-        armDistributions = resetArmDistributions(arms)
-        bestArm = arms[random.nextInt(arms.size)]
+        armDistributions = mutableMapOf("default" to arms.associateWith { ArmInfo(1.0, 1.0) })
+        bestArms = mutableMapOf("default" to arms[random.nextInt(arms.size)])
     }
 
-    override fun updateStrategy(reward: Int, armName: String) {
+    override fun updateStrategy(reward: Int, armName: String, sampledCustomer: String) {
         if (reward > 0) {
-            armDistributions[armName]!!.alpha += 1
+            armDistributions[sampledCustomer]!![armName]!!.alpha += 1
         } else {
-            armDistributions[armName]!!.beta += 1
+            armDistributions[sampledCustomer]!![armName]!!.beta += 1
         }
-        // Update the best arm
-        bestArm = findBestArm()
     }
 
-    override fun pickArm(): String  {
+    override fun pickArm(sampledCustomer: String): String  {
+        // Add to relevant maps if not seen yet
+        if(armDistributions[sampledCustomer].isNullOrEmpty()) {
+            armDistributions[sampledCustomer] = arms.associateWith { ArmInfo(1.0, 1.0) }.toMutableMap()
+            bestArms[sampledCustomer] = arms[random.nextInt(arms.size)]
+        }
         if (random.nextDouble() < epsilon) {
             numExplores += 1
             return arms[random.nextInt(arms.size)]
         }
-        return bestArm
+        bestArms[sampledCustomer] = findBestArm(sampledCustomer)
+        return bestArms[sampledCustomer]!!
     }
 
-    private fun findBestArm(): String {
-        val maxMean = armDistributions.values.maxOf { it.alpha / (it.alpha + it.beta) }
-        val bestArms = armDistributions.filter{
+    private fun findBestArm(sampledCustomer: String): String {
+        val customerDistributions = armDistributions[sampledCustomer]!!
+        val maxMean = customerDistributions.values.maxOf { it.alpha / (it.alpha + it.beta) }
+        val bestArms = customerDistributions.filter{
             it.value.alpha / (it.value.alpha + it.value.beta) == maxMean
         }.keys.toList()
         return if (bestArms.size > 1) {
