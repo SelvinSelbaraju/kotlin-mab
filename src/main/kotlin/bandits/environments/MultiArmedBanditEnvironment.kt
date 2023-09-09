@@ -10,6 +10,7 @@ data class EnvironmentHistory(
     val armNames: MutableList<String>,
     val trueMeans: MutableList<Double>,
     val trialNumber: MutableList<Int>,
+    val epsilon: MutableList<Double>
 )
 
 class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val strategy: AbstractStrategy) {
@@ -24,7 +25,8 @@ class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val 
         mutableListOf<String>(),
         mutableListOf<String>(),
         mutableListOf<Double>(),
-        mutableListOf<Int>()
+        mutableListOf<Int>(),
+        mutableListOf<Double>()
     )
 
 
@@ -57,6 +59,7 @@ class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val 
         history.armNames.add(armName)
         history.trueMeans.add(mean)
         history.trialNumber.add(trialNumber)
+        history.epsilon.add(strategy.epsilon)
     }
 
 

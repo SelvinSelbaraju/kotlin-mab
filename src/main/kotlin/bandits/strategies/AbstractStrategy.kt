@@ -7,7 +7,7 @@ data class ArmInfo(
     var alpha: Double,
     var beta: Double,
 )
-abstract class AbstractStrategy(val arms: Array<String>, val isContextual: Boolean = false) {
+abstract class AbstractStrategy(val arms: Array<String>, open var epsilon: Double = 0.0, val isContextual: Boolean = false) {
     private val defaultCustomer = "default"
     val random = JDKRandomGenerator()
     var armDistributions = mutableMapOf(defaultCustomer to arms.associateWith { ArmInfo(1.0, 1.0) })

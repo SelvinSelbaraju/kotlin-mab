@@ -5,7 +5,7 @@ import org.apache.commons.math3.distribution.BetaDistribution
 
 
 
-class ThompsonSamplingStrategy(arms: Array<String>, isContextual: Boolean): AbstractStrategy(arms, isContextual) {
+class ThompsonSamplingStrategy(arms: Array<String>, isContextual: Boolean): AbstractStrategy(arms, epsilon = 0.0, isContextual) {
     override fun updateStrategy(reward: Int, armName: String, sampledCustomer: String) {
         val customerDistributions = armDistributions[sampledCustomer]!!
         if (reward > 0) {

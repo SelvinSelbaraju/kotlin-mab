@@ -1,17 +1,19 @@
 package bandits.strategies
 
-class EpsilonGreedyStrategy(private var epsilon: Double, arms: Array<String>, isContextual: Boolean): AbstractStrategy(arms, isContextual) {
+class EpsilonGreedyStrategy(override var epsilon: Double, private var alpha: Double = 1.0, arms: Array<String>, isContextual: Boolean): AbstractStrategy(arms, epsilon, isContextual) {
     var numExplores = 0
     init {
-        updateInvalidEpsilon()
+        epsilon = updateInvalidFrac(epsilon)
+        // Alpha is the epsilon decay parameter
+        alpha = updateInvalidFrac(alpha)
+        println("Epsilon is $epsilon, Alpha is $alpha")
     }
-    private fun updateInvalidEpsilon() {
-        epsilon = when {
-            epsilon < 0 -> 0.0
-            epsilon > 1 -> 1.0
-            else -> epsilon
+    private fun updateInvalidFrac(num: Double): Double {
+        return when {
+            num < 0 -> 0.0
+            num > 1 -> 1.0
+            else -> num
         }
-        println("Epsilon is: $epsilon")
     }
 
     override fun resetStrategy() {
@@ -25,6 +27,7 @@ class EpsilonGreedyStrategy(private var epsilon: Double, arms: Array<String>, is
         } else {
             armDistributions[sampledCustomer]!![armName]!!.beta += 1
         }
+        epsilon *= alpha
     }
 
     override fun pickArm(sampledCustomer: String): String  {
