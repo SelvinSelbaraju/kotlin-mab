@@ -5,6 +5,7 @@ import bandits.distributions.DiscreteDistribution
 import bandits.strategies.AbstractStrategy
 
 data class EnvironmentHistory(
+    val timeStep: MutableList<Int>,
     val rewards: MutableList<Int>,
     val customers: MutableList<String>,
     val armNames: MutableList<String>,
@@ -20,13 +21,15 @@ class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val 
         envConfig.customers.map { it.key }
     )
     private var trialNumber = 1
+    private var timeStep = 1
     var history = EnvironmentHistory(
-        mutableListOf<Int>(),
-        mutableListOf<String>(),
-        mutableListOf<String>(),
-        mutableListOf<Double>(),
-        mutableListOf<Int>(),
-        mutableListOf<Double>()
+        mutableListOf(),
+        mutableListOf(),
+        mutableListOf(),
+        mutableListOf(),
+        mutableListOf(),
+        mutableListOf(),
+        mutableListOf()
     )
 
 
@@ -40,12 +43,13 @@ class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val 
         }
         val trueMean = customers[sampledCustomer]!!.armProbs[armName]!!
         val reward = BanditArm(trueMean).pullArm()
-        storeResults(sampledCustomer, armName, trueMean, reward)
+        storeResults(timeStep, sampledCustomer, armName, trueMean, reward)
         if (strategy.isContextual) {
             strategy.updateStrategy(reward, armName, sampledCustomer)
         } else {
             strategy.updateStrategy(reward, armName)
         }
+        timeStep += 1
     }
 
     fun resetMab() {
@@ -53,7 +57,8 @@ class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val 
         strategy.resetStrategy()
     }
 
-    private fun storeResults(customer: String, armName: String, mean: Double, reward: Int) {
+    private fun storeResults(timeStep: Int, customer: String, armName: String, mean: Double, reward: Int) {
+        history.timeStep.add(timeStep)
         history.rewards.add(reward)
         history.customers.add(customer)
         history.armNames.add(armName)

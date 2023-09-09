@@ -10,7 +10,8 @@ fun simulateWriteResults(simulators: Array<MabSimulator>): Map<String, List<Any?
         simulator.simulate()
         var df = mapOf(
             "trial" to simulator.mab.history.trialNumber,
-            "customers" to simulator.mab.history.customers,
+            "timeStep" to simulator.mab.history.timeStep,
+            "customer" to simulator.mab.history.customers,
             "cuisine" to simulator.mab.history.armNames,
             "trueMean" to simulator.mab.history.trueMeans,
             "reward" to simulator.mab.history.rewards,

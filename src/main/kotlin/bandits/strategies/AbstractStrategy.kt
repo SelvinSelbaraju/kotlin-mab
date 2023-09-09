@@ -1,7 +1,6 @@
 package bandits.strategies
 
 import org.apache.commons.math3.random.JDKRandomGenerator
-import java.util.*
 
 data class ArmInfo(
     var alpha: Double,
