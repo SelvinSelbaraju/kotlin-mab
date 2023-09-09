@@ -2,11 +2,8 @@ package bandits.strategies
 
 import java.util.Random
 
-class EpsilonGreedyStrategy(var epsilon: Double, val arms: Array<String>): AbstractStrategy() {
-    val random = Random()
+class EpsilonGreedyStrategy(var epsilon: Double, arms: Array<String>): AbstractStrategy(arms) {
     var numExplores = 0
-    var armDistributions = mutableMapOf("default" to arms.associateWith { ArmInfo(1.0, 1.0) })
-    var bestArms = mutableMapOf("default" to arms[random.nextInt(arms.size)])
     init {
         updateInvalidEpsilon()
     }
@@ -20,9 +17,8 @@ class EpsilonGreedyStrategy(var epsilon: Double, val arms: Array<String>): Abstr
     }
 
     override fun resetStrategy() {
+        super.resetStrategy()
         numExplores = 0
-        armDistributions = mutableMapOf("default" to arms.associateWith { ArmInfo(1.0, 1.0) })
-        bestArms = mutableMapOf("default" to arms[random.nextInt(arms.size)])
     }
 
     override fun updateStrategy(reward: Int, armName: String, sampledCustomer: String) {
@@ -36,8 +32,8 @@ class EpsilonGreedyStrategy(var epsilon: Double, val arms: Array<String>): Abstr
     override fun pickArm(sampledCustomer: String): String  {
         // Add to relevant maps if not seen yet
         if(armDistributions[sampledCustomer].isNullOrEmpty()) {
-            armDistributions[sampledCustomer] = arms.associateWith { ArmInfo(1.0, 1.0) }.toMutableMap()
-            bestArms[sampledCustomer] = arms[random.nextInt(arms.size)]
+            armDistributions[sampledCustomer] = getDefaultArmDistributions(arms)
+            bestArms[sampledCustomer] = getDefaultBestArms(arms)
         }
         if (random.nextDouble() < epsilon) {
             numExplores += 1

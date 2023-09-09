@@ -6,16 +6,7 @@ import org.apache.commons.math3.distribution.BetaDistribution
 
 
 
-class ThompsonSamplingStrategy(val arms: Array<String>): AbstractStrategy() {
-    val random = JDKRandomGenerator()
-    var armDistributions = mutableMapOf("default" to arms.associateWith { ArmInfo(1.0, 1.0) })
-    var bestArms = mutableMapOf("default" to arms[random.nextInt(arms.size)])
-
-    override fun resetStrategy() {
-        armDistributions = mutableMapOf("default" to arms.associateWith { ArmInfo(1.0, 1.0) })
-        bestArms = mutableMapOf("default" to arms[random.nextInt(arms.size)])
-    }
-
+class ThompsonSamplingStrategy(arms: Array<String>): AbstractStrategy(arms) {
     override fun updateStrategy(reward: Int, armName: String, sampledCustomer: String) {
         val customerDistributions = armDistributions[sampledCustomer]!!
         if (reward > 0) {
@@ -28,8 +19,8 @@ class ThompsonSamplingStrategy(val arms: Array<String>): AbstractStrategy() {
     override fun pickArm(sampledCustomer: String): String {
         // Add to relevant maps if not seen yet
         if(armDistributions[sampledCustomer].isNullOrEmpty()) {
-            armDistributions[sampledCustomer] = arms.associateWith { ArmInfo(1.0, 1.0) }.toMutableMap()
-            bestArms[sampledCustomer] = arms[random.nextInt(arms.size)]
+            armDistributions[sampledCustomer] = getDefaultArmDistributions(arms)
+            bestArms[sampledCustomer] = getDefaultBestArms(arms)
         }
         bestArms[sampledCustomer] = findBestArm(sampledCustomer)
         return bestArms[sampledCustomer]!!
