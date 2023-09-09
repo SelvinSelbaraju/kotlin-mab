@@ -1,4 +1,5 @@
 {
+  "isContextual": true,
   "strategyType": "e-greedy",
   "strategyParams": {
     "epsilon": 0.0

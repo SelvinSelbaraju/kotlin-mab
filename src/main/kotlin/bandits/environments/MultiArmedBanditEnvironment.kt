@@ -5,11 +5,13 @@ import bandits.distributions.DiscreteDistribution
 import bandits.strategies.AbstractStrategy
 
 data class EnvironmentHistory(
+    val timeStep: MutableList<Int>,
     val rewards: MutableList<Int>,
     val customers: MutableList<String>,
     val armNames: MutableList<String>,
     val trueMeans: MutableList<Double>,
     val trialNumber: MutableList<Int>,
+    val epsilon: MutableList<Double>
 )
 
 class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val strategy: AbstractStrategy) {
@@ -19,22 +21,35 @@ class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val 
         envConfig.customers.map { it.key }
     )
     private var trialNumber = 1
+    private var timeStep = 1
     var history = EnvironmentHistory(
-        mutableListOf<Int>(),
-        mutableListOf<String>(),
-        mutableListOf<String>(),
-        mutableListOf<Double>(),
-        mutableListOf<Int>()
+        mutableListOf(),
+        mutableListOf(),
+        mutableListOf(),
+        mutableListOf(),
+        mutableListOf(),
+        mutableListOf(),
+        mutableListOf()
     )
 
 
     fun step() {
         val sampledCustomer = customerDistribution.sample()
-        val armName = strategy.pickArm()
+        // If not contextual, hide customer type
+        val armName = if (strategy.isContextual) {
+            strategy.pickArm(sampledCustomer)
+        } else {
+            strategy.pickArm()
+        }
         val trueMean = customers[sampledCustomer]!!.armProbs[armName]!!
         val reward = BanditArm(trueMean).pullArm()
-        storeResults(sampledCustomer, armName, trueMean, reward)
-        strategy.updateStrategy(reward, armName)
+        storeResults(timeStep, sampledCustomer, armName, trueMean, reward)
+        if (strategy.isContextual) {
+            strategy.updateStrategy(reward, armName, sampledCustomer)
+        } else {
+            strategy.updateStrategy(reward, armName)
+        }
+        timeStep += 1
     }
 
     fun resetMab() {
@@ -42,12 +57,14 @@ class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val 
         strategy.resetStrategy()
     }
 
-    private fun storeResults(customer: String, armName: String, mean: Double, reward: Int) {
+    private fun storeResults(timeStep: Int, customer: String, armName: String, mean: Double, reward: Int) {
+        history.timeStep.add(timeStep)
         history.rewards.add(reward)
         history.customers.add(customer)
         history.armNames.add(armName)
         history.trueMeans.add(mean)
         history.trialNumber.add(trialNumber)
+        history.epsilon.add(strategy.epsilon)
     }
 
 

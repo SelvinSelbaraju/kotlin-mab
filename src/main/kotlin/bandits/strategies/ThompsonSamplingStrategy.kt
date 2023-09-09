@@ -1,41 +1,37 @@
 package bandits.strategies
 
-import org.apache.commons.math3.random.JDKRandomGenerator
 import org.apache.commons.math3.distribution.BetaDistribution
 
 
 
 
-class ThompsonSamplingStrategy(val testParam: Double, val arms: Array<String>): AbstractStrategy() {
-    val random = JDKRandomGenerator()
-    var armDistributions = resetArmDistributions(arms)
-    var bestArm = arms[random.nextInt(arms.size)]
-
-    override fun resetStrategy() {
-        armDistributions = resetArmDistributions(arms)
-        bestArm = arms[random.nextInt(arms.size)]
-    }
-
-    override fun updateStrategy(reward: Int, armName: String) {
+class ThompsonSamplingStrategy(arms: Array<String>, isContextual: Boolean): AbstractStrategy(arms, epsilon = 0.0, isContextual) {
+    override fun updateStrategy(reward: Int, armName: String, sampledCustomer: String) {
+        val customerDistributions = armDistributions[sampledCustomer]!!
         if (reward > 0) {
-            armDistributions[armName]!!.alpha += 1
+            customerDistributions[armName]!!.alpha += 1
         } else {
-            armDistributions[armName]!!.beta += 1
+            customerDistributions[armName]!!.beta += 1
         }
-        // Update the best arm
-        bestArm = findBestArm()
     }
 
-    override fun pickArm(): String {
-        return bestArm
+    override fun pickArm(sampledCustomer: String): String {
+        // Add to relevant maps if not seen yet
+        if(armDistributions[sampledCustomer].isNullOrEmpty()) {
+            armDistributions[sampledCustomer] = getDefaultArmDistributions(arms)
+            bestArms[sampledCustomer] = getDefaultBestArms(arms)
+        }
+        bestArms[sampledCustomer] = findBestArm(sampledCustomer)
+        return bestArms[sampledCustomer]!!
     }
 
-    private fun findBestArm(): String {
-        val samples = armDistributions.mapValues {
+    private fun findBestArm(sampledCustomer: String): String {
+        val customerDistributions = armDistributions[sampledCustomer]!!
+        val samples = customerDistributions.mapValues {
             BetaDistribution(random, it.value.alpha, it.value.beta).sample()
         }
         val maxSample = samples.maxOf { it.value }
-        val bestArms = samples.filter { it.value == maxSample }.keys.toList()
-        return bestArms[random.nextInt(bestArms.size)]
+        val sampledBestArms = samples.filter { it.value == maxSample }.keys.toList()
+        return sampledBestArms[random.nextInt(sampledBestArms.size)]
     }
 }
