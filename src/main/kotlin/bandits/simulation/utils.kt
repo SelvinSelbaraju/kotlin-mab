@@ -15,7 +15,9 @@ fun simulateWriteResults(simulators: Array<MabSimulator>): Map<String, List<Any?
             "cuisine" to simulator.mab.history.armNames,
             "trueMean" to simulator.mab.history.trueMeans,
             "reward" to simulator.mab.history.rewards,
-            "epsilon" to simulator.mab.history.epsilon
+            "epsilon" to simulator.mab.history.epsilon,
+            "bestMean" to simulator.mab.history.bestMeans,
+            "regret" to simulator.mab.history.regrets
         ).toDataFrame()
         df = df.add {
             "simulation" from { i }

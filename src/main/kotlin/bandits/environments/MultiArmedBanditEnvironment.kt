@@ -11,7 +11,9 @@ data class EnvironmentHistory(
     val armNames: MutableList<String>,
     val trueMeans: MutableList<Double>,
     val trialNumber: MutableList<Int>,
-    val epsilon: MutableList<Double>
+    val epsilon: MutableList<Double>,
+    val bestMeans: MutableList<Double>,
+    val regrets: MutableList<Double>
 )
 
 class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val strategy: AbstractStrategy) {
@@ -20,9 +22,12 @@ class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val 
         envConfig.customers.map { it.value.populationProb },
         envConfig.customers.map { it.key }
     )
+    private val bestArms = findBestArms()
     private var trialNumber = 1
     private var timeStep = 1
     var history = EnvironmentHistory(
+        mutableListOf(),
+        mutableListOf(),
         mutableListOf(),
         mutableListOf(),
         mutableListOf(),
@@ -65,6 +70,20 @@ class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val 
         history.trueMeans.add(mean)
         history.trialNumber.add(trialNumber)
         history.epsilon.add(strategy.epsilon)
+        // The highest possible mean for that customer
+        history.bestMeans.add(bestArms[customer]!!)
+        // Regret is the highest mean - mean of arm
+        history.regrets.add(bestArms[customer]!! - mean)
+    }
+
+    // Find best mean reward for each customer type
+    private fun findBestArms(): Map<String, Double> {
+        val bestArms = mutableMapOf<String, Double>()
+        for (customer in customers) {
+            // For each customer, go into the arm probs and get the max
+            bestArms[customer.key] = customer.value.armProbs.maxOf { it.value }
+        }
+        return bestArms.toMap()
     }
 
 
