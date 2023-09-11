@@ -11,7 +11,7 @@ data class CustomerStats(
 @Serializable
 data class Environment(
     var numTrials: Int,
-    var numCustomers: Int,
+    var numSteps: Int,
     var arms: Array<String>,
     var customers: Map<String, CustomerStats>
 )

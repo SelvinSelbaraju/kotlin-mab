@@ -32,7 +32,7 @@ fun EnvironmentManager() {
     Column(modifier = Modifier.verticalScroll(scrollState)) {
         Button(onClick = {
             environment = loadJson<Environment>("src/main/assets/environment.json")
-            errors = errors.copy(customerStats = validateCustomerStats(environment.customers), simulationParams = validateSimulationParams(environment.numTrials, environment.numCustomers, environmentConstraints))
+            errors = errors.copy(customerStats = validateCustomerStats(environment.customers), simulationParams = validateSimulationParams(environment.numTrials, environment.numSteps, environmentConstraints))
         }) {
             Text("Reset to Default Environment")
         }
@@ -53,22 +53,22 @@ fun EnvironmentManager() {
             }
         }
         if (armsReadOnly.value && customersReadOnly.value) {
-            errors = errors.copy(customerStats = validateCustomerStats(environment.customers), simulationParams = validateSimulationParams(environment.numTrials, environment.numCustomers, environmentConstraints))
+            errors = errors.copy(customerStats = validateCustomerStats(environment.customers), simulationParams = validateSimulationParams(environment.numTrials, environment.numSteps, environmentConstraints))
             CustomerStatsManager(environment.arms.toMutableList(), environment.customers.toMutableMap()) {
                 newCustomerStats ->
                 environment = environment.copy(customers = newCustomerStats)
                 errors = errors.copy(customerStats = validateCustomerStats(environment.customers))
             }
-            SimulationParamManager(SimulationParams(environment.numTrials, environment.numCustomers)) {
+            SimulationParamManager(SimulationParams(environment.numTrials, environment.numSteps)) {
                 newParams ->
-                environment = environment.copy(numTrials = newParams.numTrials, numCustomers = newParams.numCustomers)
-                errors = errors.copy(simulationParams = validateSimulationParams(environment.numTrials, environment.numCustomers, environmentConstraints))
+                environment = environment.copy(numTrials = newParams.numTrials, numSteps = newParams.numCustomers)
+                errors = errors.copy(simulationParams = validateSimulationParams(environment.numTrials, environment.numSteps, environmentConstraints))
             }
             Button(enabled = (errors.customerStats.populationProbs.isNullOrBlank() && errors.customerStats.armProbs.isNullOrBlank() && errors.simulationParams.numTrials.isNullOrBlank() && errors.simulationParams.numSteps.isNullOrBlank()), onClick = {
                 val strategy = StrategyFactory().getStrategyFromConfig("src/main/assets/explore_e_greedy.json", environment.arms)
                 val mab = MultiArmedBanditEnvironment("mab1", environment, strategy)
                 val simulators = arrayOf(
-                    MabSimulator(mab, environment.numTrials, environment.numCustomers)
+                    MabSimulator(mab, environment.numTrials, environment.numSteps)
                 )
                 results = simulateWriteResults(simulators).toString()
             }) {

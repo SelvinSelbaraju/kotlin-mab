@@ -13,7 +13,7 @@ import bandits.environments.Environment
 fun UIDebugger(environment: Environment) {
     Text("Environment Debugger")
     Text("Num Trials: ${environment.numTrials}")
-    Text("Num Customers: ${environment.numCustomers}")
+    Text("Num Customers: ${environment.numSteps}")
     Row {
         environment.arms.forEachIndexed { index, arm ->
             Text("Arm ${index}: $arm", modifier = Modifier.padding(end=5.dp))

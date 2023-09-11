@@ -22,7 +22,7 @@
     }
   },
   "numTrials": 100,
-  "numCustomers": 1000,
+  "numSteps": 1000,
   "arms": [
     "Chinese",
     "Turkish",

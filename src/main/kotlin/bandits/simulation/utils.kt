@@ -34,26 +34,3 @@ fun simulateWriteResults(simulators: Array<MabSimulator>): Map<String, List<Any?
     println("Simulation Done")
     return envResults.toMap()
 }
-
-//fun main(args: Array<String>) {
-//    val environment = loadJson<Environment>("src/main/assets/environment.json")
-//    val arms = environment.arms
-//
-//    // Strategy params to be moved to strategy specific config
-//    val strategyFactory = StrategyFactory()
-//    val strategy = strategyFactory.getStrategyFromConfig("src/main/assets/explore_e_greedy.json", arms)
-//    val strategy2 = strategyFactory.getStrategyFromConfig("src/main/assets/no_explore_e_greedy.json", arms)
-//    val strategy3 = strategyFactory.getStrategyFromConfig("src/main/assets/ts.json", arms)
-//
-//    val mab = MultiArmedBanditEnvironment("mab1", environment, strategy)
-//    val mab2 = MultiArmedBanditEnvironment("mab2", environment, strategy2)
-//    val mab3 = MultiArmedBanditEnvironment("mab3", environment, strategy3)
-//
-//    val simulators = arrayOf(
-//        MabSimulator(mab, environment.numTrials, environment.numCustomers),
-//        MabSimulator(mab2, environment.numTrials, environment.numCustomers),
-//        MabSimulator(mab3, environment.numTrials, environment.numCustomers)
-//    )
-//
-//    simulateWriteResults(simulators, args[0])
-//}
