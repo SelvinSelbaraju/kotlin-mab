@@ -65,7 +65,7 @@ fun EnvironmentManager() {
                 errors = errors.copy(simulationParams = validateSimulationParams(environment.numTrials, environment.numSteps, environmentConstraints))
             }
             Button(enabled = (errors.customerStats.populationProbs.isNullOrBlank() && errors.customerStats.armProbs.isNullOrBlank() && errors.simulationParams.numTrials.isNullOrBlank() && errors.simulationParams.numSteps.isNullOrBlank()), onClick = {
-                val strategy = StrategyFactory().getStrategyFromConfig("src/main/assets/explore_e_greedy.json", environment.arms)
+                val strategy = StrategyFactory().getStrategyFromConfig("src/main/assets/ucb.json", environment.arms)
                 val mab = MultiArmedBanditEnvironment("mab1", environment, strategy)
                 val simulators = arrayOf(
                     MabSimulator(mab, environment.numTrials, environment.numSteps)

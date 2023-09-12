@@ -17,7 +17,7 @@ abstract class AbstractStrategy(val arms: Array<String>, open var epsilon: Doubl
         armDistributions = mutableMapOf(defaultCustomer to arms.associateWith { ArmInfo(1.0, 1.0) })
         bestArms = mutableMapOf(defaultCustomer to arms[random.nextInt(arms.size)])
     }
-    abstract fun pickArm(sampledCustomer: String = defaultCustomer): String
+    abstract fun pickArm(sampledCustomer: String = defaultCustomer, timeStep: Int): String
     protected fun getDefaultArmDistributions(arms: Array<String>): MutableMap<String, ArmInfo> {
         return arms.associateWith { ArmInfo(1.0, 1.0) }.toMutableMap()
     }

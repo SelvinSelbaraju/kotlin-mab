@@ -15,7 +15,7 @@ class ThompsonSamplingStrategy(arms: Array<String>, isContextual: Boolean): Abst
         }
     }
 
-    override fun pickArm(sampledCustomer: String): String {
+    override fun pickArm(sampledCustomer: String, timeStep: Int): String {
         // Add to relevant maps if not seen yet
         if(armDistributions[sampledCustomer].isNullOrEmpty()) {
             armDistributions[sampledCustomer] = getDefaultArmDistributions(arms)

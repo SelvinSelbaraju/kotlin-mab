@@ -1,0 +1,7 @@
+{
+  "isContextual": true,
+  "strategyType": "ucb",
+  "strategyParams": {
+    "c": 1.0
+  }
+}
