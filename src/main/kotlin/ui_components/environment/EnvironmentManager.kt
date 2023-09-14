@@ -14,6 +14,7 @@ import bandits.environments.MultiArmedBanditEnvironment
 import bandits.simulation.MabSimulator
 import bandits.simulation.simulateWriteResults
 import bandits.strategies.StrategyFactory
+import kotlinx.coroutines.launch
 import ui_components.environment.validation.*
 import ui_components.utils.ErrorMessage
 import ui_components.utils.Errors
@@ -29,6 +30,7 @@ fun EnvironmentManager() {
     var results by remember { mutableStateOf("") }
     var environment by remember { mutableStateOf(loadJson<Environment>("src/main/assets/environment.json")) }
     var errors by remember { mutableStateOf(Errors()) }
+    val scope = rememberCoroutineScope()
     Column(modifier = Modifier.verticalScroll(scrollState)) {
         Button(onClick = {
             environment = loadJson<Environment>("src/main/assets/environment.json")
@@ -70,7 +72,9 @@ fun EnvironmentManager() {
                 val simulators = arrayOf(
                     MabSimulator(mab, environment.numTrials, environment.numSteps)
                 )
-                results = simulateWriteResults(simulators).toString()
+                scope.launch {
+                    results = simulateWriteResults(simulators)
+                }
             }) {
                 Text("Start Simulation")
             }
