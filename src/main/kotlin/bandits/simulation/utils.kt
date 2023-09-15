@@ -33,11 +33,14 @@ suspend fun simulateWriteResults(simulators: Array<MabSimulator>): String =
                 results.add(df)
             }
         }.awaitAll()
-        val resultsData = results.concat()
-        // For each environment, take sum of each trial's rewards, take mean
-        val envResults = resultsData.groupBy("environmentName", "trial")
-            .sum().groupBy("environmentName").mean().getColumns("environmentName", "reward").toDataFrame()
-        resultsData.writeCSV("results.csv")
-        println("Simulation Done")
-        envResults.toMap().toString()
+        val data = async(Dispatchers.Default) {
+            val resultsData = results.concat()
+            // For each environment, take sum of each trial's rewards, take mean
+            val envResults = resultsData.groupBy("environmentName", "trial")
+                .sum().groupBy("environmentName").mean().getColumns("environmentName", "reward").toDataFrame()
+            resultsData.writeCSV("results.csv")
+            println("Simulation Done")
+            envResults.toMap().toString()
+        }
+        data.await()
     }
