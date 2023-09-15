@@ -58,6 +58,7 @@ class MultiArmedBanditEnvironment(val name: String, envConfig: Environment, val 
     }
 
     fun resetMab() {
+        timeStep = 1
         trialNumber += 1
         strategy.resetStrategy()
     }

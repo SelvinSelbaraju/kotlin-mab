@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -14,11 +15,14 @@ import bandits.environments.MultiArmedBanditEnvironment
 import bandits.simulation.MabSimulator
 import bandits.simulation.simulateWriteResults
 import bandits.strategies.StrategyFactory
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import ui_components.environment.validation.*
 import ui_components.utils.ErrorMessage
 import ui_components.utils.Errors
 import ui_components.utils.ToggleButton
 import utils.loadJson
+import kotlin.time.measureTimedValue
 
 @Composable
 fun EnvironmentManager() {
@@ -29,6 +33,11 @@ fun EnvironmentManager() {
     var results by remember { mutableStateOf("") }
     var environment by remember { mutableStateOf(loadJson<Environment>("src/main/assets/environment.json")) }
     var errors by remember { mutableStateOf(Errors()) }
+    val scope = rememberCoroutineScope()
+    var simulationJob: Job? by remember {
+        mutableStateOf(null)
+    }
+    var simRunning by remember { mutableStateOf(false) }
     Column(modifier = Modifier.verticalScroll(scrollState)) {
         Button(onClick = {
             environment = loadJson<Environment>("src/main/assets/environment.json")
@@ -64,15 +73,37 @@ fun EnvironmentManager() {
                 environment = environment.copy(numTrials = newParams.numTrials, numSteps = newParams.numCustomers)
                 errors = errors.copy(simulationParams = validateSimulationParams(environment.numTrials, environment.numSteps, environmentConstraints))
             }
-            Button(enabled = (errors.customerStats.populationProbs.isNullOrBlank() && errors.customerStats.armProbs.isNullOrBlank() && errors.simulationParams.numTrials.isNullOrBlank() && errors.simulationParams.numSteps.isNullOrBlank()), onClick = {
-                val strategy = StrategyFactory().getStrategyFromConfig("src/main/assets/ucb.json", environment.arms)
-                val mab = MultiArmedBanditEnvironment("mab1", environment, strategy)
-                val simulators = arrayOf(
-                    MabSimulator(mab, environment.numTrials, environment.numSteps)
-                )
-                results = simulateWriteResults(simulators).toString()
-            }) {
-                Text("Start Simulation")
+            if (!simRunning) {
+                Button(enabled = (errors.customerStats.populationProbs.isNullOrBlank() && errors.customerStats.armProbs.isNullOrBlank() && errors.simulationParams.numTrials.isNullOrBlank() && errors.simulationParams.numSteps.isNullOrBlank()), onClick = {
+                    simRunning = true
+                    simulationJob = scope.launch {
+                        results = "Running simulation..."
+                        val (result, duration) = measureTimedValue {
+                            val strategy =
+                                StrategyFactory().getStrategyFromConfig("src/main/assets/ucb.json", environment.arms)
+                            val mab = MultiArmedBanditEnvironment("mab1", environment, strategy)
+                            val simulators = arrayOf(
+                                MabSimulator(mab, environment.numTrials, environment.numSteps),
+                            )
+                            simulateWriteResults(simulators)
+                        }
+                        results = result + ". Took ${duration.inWholeMilliseconds}ms."
+                        simRunning = false
+                    }
+                }) {
+                    Text("Start Simulation")
+                }
+            } else {
+                Row {
+                    Button(onClick = {
+                        simulationJob?.cancel()
+                        results = "Simulation cancelled"
+                        simRunning = false
+                    }) {
+                        Text("Cancel Simulation")
+                    }
+                    CircularProgressIndicator()
+                }
             }
             ErrorMessage(errors)
             Text("Results: $results")
