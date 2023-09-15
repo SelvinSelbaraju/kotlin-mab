@@ -21,7 +21,6 @@ import ui_components.utils.ErrorMessage
 import ui_components.utils.Errors
 import ui_components.utils.ToggleButton
 import utils.loadJson
-import kotlin.system.measureTimeMillis
 import kotlin.time.measureTimedValue
 
 @Composable
@@ -37,6 +36,7 @@ fun EnvironmentManager() {
     var simulationJob: Job? by remember {
         mutableStateOf(null)
     }
+    var simRunning by remember { mutableStateOf(false) }
     Column(modifier = Modifier.verticalScroll(scrollState)) {
         Button(onClick = {
             environment = loadJson<Environment>("src/main/assets/environment.json")
@@ -72,28 +72,34 @@ fun EnvironmentManager() {
                 environment = environment.copy(numTrials = newParams.numTrials, numSteps = newParams.numCustomers)
                 errors = errors.copy(simulationParams = validateSimulationParams(environment.numTrials, environment.numSteps, environmentConstraints))
             }
-            Button(enabled = (errors.customerStats.populationProbs.isNullOrBlank() && errors.customerStats.armProbs.isNullOrBlank() && errors.simulationParams.numTrials.isNullOrBlank() && errors.simulationParams.numSteps.isNullOrBlank()), onClick = {
-                simulationJob = scope.launch {
-                    results = "Running simulation..."
-                    val (result, duration) = measureTimedValue {
-                        val strategy =
-                            StrategyFactory().getStrategyFromConfig("src/main/assets/ucb.json", environment.arms)
-                        val mab = MultiArmedBanditEnvironment("mab1", environment, strategy)
-                        val simulators = arrayOf(
-                            MabSimulator(mab, environment.numTrials, environment.numSteps),
-                        )
-                        simulateWriteResults(simulators)
+            if (!simRunning) {
+                Button(enabled = (errors.customerStats.populationProbs.isNullOrBlank() && errors.customerStats.armProbs.isNullOrBlank() && errors.simulationParams.numTrials.isNullOrBlank() && errors.simulationParams.numSteps.isNullOrBlank()), onClick = {
+                    simRunning = true
+                    simulationJob = scope.launch {
+                        results = "Running simulation..."
+                        val (result, duration) = measureTimedValue {
+                            val strategy =
+                                StrategyFactory().getStrategyFromConfig("src/main/assets/ucb.json", environment.arms)
+                            val mab = MultiArmedBanditEnvironment("mab1", environment, strategy)
+                            val simulators = arrayOf(
+                                MabSimulator(mab, environment.numTrials, environment.numSteps),
+                            )
+                            simulateWriteResults(simulators)
+                        }
+                        results = result + ". Took ${duration.inWholeMilliseconds}ms."
+                        simRunning = false
                     }
-                    results = result + ". Took ${duration.inWholeMilliseconds}ms."
+                }) {
+                    Text("Start Simulation")
                 }
-            }) {
-                Text("Start Simulation")
-            }
-            Button(onClick = {
-                simulationJob?.cancel()
-                results = "Simulation cancelled"
-            }) {
-                Text("Cancel Simulation")
+            } else {
+                Button(onClick = {
+                    simulationJob?.cancel()
+                    results = "Simulation cancelled"
+                    simRunning = false
+                }) {
+                    Text("Cancel Simulation")
+                }
             }
             ErrorMessage(errors)
             Text("Results: $results")
