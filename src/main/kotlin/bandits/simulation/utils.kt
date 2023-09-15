@@ -11,9 +11,9 @@ import org.jetbrains.kotlinx.dataframe.io.writeCSV
 suspend fun simulateWriteResults(simulators: Array<MabSimulator>): String =
     coroutineScope {
         Dispatchers.setMain(Dispatchers.Unconfined)
-        val data = async(Dispatchers.Default) {
-            val results = mutableListOf<AnyFrame>()
-            for ((i,simulator) in simulators.withIndex()) {
+        val results = mutableListOf<AnyFrame>()
+        simulators.mapIndexed() { i, simulator ->
+            async(Dispatchers.Default) {
                 simulator.simulate()
                 var df = mapOf(
                     "trial" to simulator.mab.history.trialNumber,
@@ -32,15 +32,12 @@ suspend fun simulateWriteResults(simulators: Array<MabSimulator>): String =
                 }
                 results.add(df)
             }
-            val resultsData = results.concat()
-
-            // For each environment, take sum of each trial's rewards, take mean
-            val envResults = resultsData.groupBy("environmentName", "trial")
-                .sum().groupBy("environmentName").mean().getColumns("environmentName", "reward").toDataFrame()
-            resultsData.writeCSV("results.csv")
-            println("Simulation Done")
-            envResults.toMap()
-        }
-
-        data.await().toString()
+        }.awaitAll()
+        val resultsData = results.concat()
+        // For each environment, take sum of each trial's rewards, take mean
+        val envResults = resultsData.groupBy("environmentName", "trial")
+            .sum().groupBy("environmentName").mean().getColumns("environmentName", "reward").toDataFrame()
+        resultsData.writeCSV("results.csv")
+        println("Simulation Done")
+        envResults.toMap().toString()
     }

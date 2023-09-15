@@ -20,6 +20,8 @@ import ui_components.utils.ErrorMessage
 import ui_components.utils.Errors
 import ui_components.utils.ToggleButton
 import utils.loadJson
+import kotlin.system.measureTimeMillis
+import kotlin.time.measureTimedValue
 
 @Composable
 fun EnvironmentManager() {
@@ -67,13 +69,18 @@ fun EnvironmentManager() {
                 errors = errors.copy(simulationParams = validateSimulationParams(environment.numTrials, environment.numSteps, environmentConstraints))
             }
             Button(enabled = (errors.customerStats.populationProbs.isNullOrBlank() && errors.customerStats.armProbs.isNullOrBlank() && errors.simulationParams.numTrials.isNullOrBlank() && errors.simulationParams.numSteps.isNullOrBlank()), onClick = {
-                val strategy = StrategyFactory().getStrategyFromConfig("src/main/assets/ucb.json", environment.arms)
-                val mab = MultiArmedBanditEnvironment("mab1", environment, strategy)
-                val simulators = arrayOf(
-                    MabSimulator(mab, environment.numTrials, environment.numSteps)
-                )
                 scope.launch {
-                    results = simulateWriteResults(simulators)
+                    results = "Running simulation..."
+                    val (result, duration) = measureTimedValue {
+                        val strategy =
+                            StrategyFactory().getStrategyFromConfig("src/main/assets/ucb.json", environment.arms)
+                        val mab = MultiArmedBanditEnvironment("mab1", environment, strategy)
+                        val simulators = arrayOf(
+                            MabSimulator(mab, environment.numTrials, environment.numSteps),
+                        )
+                        simulateWriteResults(simulators)
+                    }
+                    results = result + ". Took ${duration.inWholeMilliseconds}ms."
                 }
             }) {
                 Text("Start Simulation")
