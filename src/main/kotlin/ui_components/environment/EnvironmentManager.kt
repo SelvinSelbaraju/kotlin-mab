@@ -14,6 +14,7 @@ import bandits.environments.MultiArmedBanditEnvironment
 import bandits.simulation.MabSimulator
 import bandits.simulation.simulateWriteResults
 import bandits.strategies.StrategyFactory
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import ui_components.environment.validation.*
 import ui_components.utils.ErrorMessage
@@ -33,6 +34,9 @@ fun EnvironmentManager() {
     var environment by remember { mutableStateOf(loadJson<Environment>("src/main/assets/environment.json")) }
     var errors by remember { mutableStateOf(Errors()) }
     val scope = rememberCoroutineScope()
+    var simulationJob: Job? by remember {
+        mutableStateOf(null)
+    }
     Column(modifier = Modifier.verticalScroll(scrollState)) {
         Button(onClick = {
             environment = loadJson<Environment>("src/main/assets/environment.json")
@@ -69,7 +73,7 @@ fun EnvironmentManager() {
                 errors = errors.copy(simulationParams = validateSimulationParams(environment.numTrials, environment.numSteps, environmentConstraints))
             }
             Button(enabled = (errors.customerStats.populationProbs.isNullOrBlank() && errors.customerStats.armProbs.isNullOrBlank() && errors.simulationParams.numTrials.isNullOrBlank() && errors.simulationParams.numSteps.isNullOrBlank()), onClick = {
-                scope.launch {
+                simulationJob = scope.launch {
                     results = "Running simulation..."
                     val (result, duration) = measureTimedValue {
                         val strategy =
@@ -84,6 +88,12 @@ fun EnvironmentManager() {
                 }
             }) {
                 Text("Start Simulation")
+            }
+            Button(onClick = {
+                simulationJob?.cancel()
+                results = "Simulation cancelled"
+            }) {
+                Text("Cancel Simulation")
             }
             ErrorMessage(errors)
             Text("Results: $results")
