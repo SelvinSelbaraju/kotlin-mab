@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -93,12 +94,15 @@ fun EnvironmentManager() {
                     Text("Start Simulation")
                 }
             } else {
-                Button(onClick = {
-                    simulationJob?.cancel()
-                    results = "Simulation cancelled"
-                    simRunning = false
-                }) {
-                    Text("Cancel Simulation")
+                Row {
+                    Button(onClick = {
+                        simulationJob?.cancel()
+                        results = "Simulation cancelled"
+                        simRunning = false
+                    }) {
+                        Text("Cancel Simulation")
+                    }
+                    CircularProgressIndicator()
                 }
             }
             ErrorMessage(errors)
