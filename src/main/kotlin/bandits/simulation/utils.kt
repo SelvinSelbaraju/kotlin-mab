@@ -10,6 +10,7 @@ import org.jetbrains.kotlinx.dataframe.io.writeCSV
 @OptIn(ExperimentalCoroutinesApi::class)
 suspend fun simulateWriteResults(simulators: Array<MabSimulator>): String =
     coroutineScope {
+        // This is needed for testing in IntelliJ
         Dispatchers.setMain(Dispatchers.Unconfined)
         val results = mutableListOf<AnyFrame>()
         simulators.mapIndexed() { i, simulator ->
