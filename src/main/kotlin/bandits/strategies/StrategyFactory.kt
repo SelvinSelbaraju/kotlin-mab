@@ -13,11 +13,12 @@ data class StrategyConfig(
 
 
 class StrategyFactory() {
-    private val strategiesMap = mapOf(
+    val strategiesMap = mapOf(
         "e-greedy" to EpsilonGreedyStrategy::class,
         "ts" to ThompsonSamplingStrategy::class,
         "ucb" to UCBStrategy::class
     )
+
     fun getStrategyFromConfig(configPath: String, arms: Array<String>): AbstractStrategy {
         val config = loadJson<StrategyConfig>(configPath)
         val strategyConstructor = strategiesMap[config.strategyType]!!.primaryConstructor!!

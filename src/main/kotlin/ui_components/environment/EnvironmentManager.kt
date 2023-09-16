@@ -1,5 +1,6 @@
 package ui_components.environment
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.rememberScrollState
@@ -27,7 +28,6 @@ import kotlin.time.measureTimedValue
 @Composable
 fun EnvironmentManager() {
     val environmentConstraints = loadJson<EnvironmentConstraints>("src/main/assets/environment_constraints.json")
-    val scrollState = rememberScrollState()
     val armsReadOnly = remember { mutableStateOf(false) }
     val customersReadOnly = remember { mutableStateOf(false) }
     var results by remember { mutableStateOf("") }
@@ -38,7 +38,7 @@ fun EnvironmentManager() {
         mutableStateOf(null)
     }
     var simRunning by remember { mutableStateOf(false) }
-    Column(modifier = Modifier.verticalScroll(scrollState)) {
+    Column() {
         Button(onClick = {
             environment = loadJson<Environment>("src/main/assets/environment.json")
             errors = errors.copy(customerStats = validateCustomerStats(environment.customers), simulationParams = validateSimulationParams(environment.numTrials, environment.numSteps, environmentConstraints))
