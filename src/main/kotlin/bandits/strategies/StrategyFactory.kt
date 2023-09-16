@@ -19,6 +19,16 @@ class StrategyFactory() {
         "ucb" to UCBStrategy::class
     )
 
+    fun getDefaultStrategy(strategyName: String, arms: Array<String>): AbstractStrategy {
+        println(strategyName)
+        return when (strategyName) {
+            "e-greedy" -> EpsilonGreedyStrategy(epsilon = 0.1, alpha = 1.0, arms= arms, isContextual = true)
+            "ts" -> ThompsonSamplingStrategy(arms = arms, isContextual = true)
+            "ucb" -> UCBStrategy(c = 0.1, arms = arms, isContextual = true)
+            else -> EpsilonGreedyStrategy(epsilon = 0.1, alpha = 1.0, arms= arms, isContextual = true)
+        }
+    }
+
     fun getStrategyFromConfig(configPath: String, arms: Array<String>): AbstractStrategy {
         val config = loadJson<StrategyConfig>(configPath)
         val strategyConstructor = strategiesMap[config.strategyType]!!.primaryConstructor!!

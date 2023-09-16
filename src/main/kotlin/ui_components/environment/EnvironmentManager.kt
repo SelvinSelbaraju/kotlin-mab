@@ -1,15 +1,11 @@
 package ui_components.environment
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import bandits.environments.CustomerStats
 import bandits.environments.Environment
 import bandits.environments.MultiArmedBanditEnvironment
@@ -26,12 +22,11 @@ import utils.loadJson
 import kotlin.time.measureTimedValue
 
 @Composable
-fun EnvironmentManager() {
+fun EnvironmentManager(environment: Environment, onChange: (Environment) -> Unit) {
     val environmentConstraints = loadJson<EnvironmentConstraints>("src/main/assets/environment_constraints.json")
     val armsReadOnly = remember { mutableStateOf(false) }
     val customersReadOnly = remember { mutableStateOf(false) }
     var results by remember { mutableStateOf("") }
-    var environment by remember { mutableStateOf(loadJson<Environment>("src/main/assets/environment.json")) }
     var errors by remember { mutableStateOf(Errors()) }
     val scope = rememberCoroutineScope()
     var simulationJob: Job? by remember {
@@ -40,7 +35,7 @@ fun EnvironmentManager() {
     var simRunning by remember { mutableStateOf(false) }
     Column() {
         Button(onClick = {
-            environment = loadJson<Environment>("src/main/assets/environment.json")
+            onChange(loadJson<Environment>("src/main/assets/environment.json"))
             errors = errors.copy(customerStats = validateCustomerStats(environment.customers), simulationParams = validateSimulationParams(environment.numTrials, environment.numSteps, environmentConstraints))
         }) {
             Text("Reset to Default Environment")
@@ -52,25 +47,25 @@ fun EnvironmentManager() {
             ListManager(environment.arms.toMutableList(), "Cuisine", armsReadOnly, environmentConstraints.maxArms) {
                 newArms ->
                 val newCustomers = validateArms(newArms, environment)
-                environment = environment.copy(arms = newArms.toTypedArray(), customers = newCustomers)
+                onChange(environment.copy(arms = newArms.toTypedArray(), customers = newCustomers))
             }
             ListManager(environment.customers.keys.toMutableList(), "Customer", customersReadOnly, environmentConstraints.maxCustomers) {
                 newCustomers ->
                 // If a customer doesn't exist, create customer stats with below defaults
-                environment = environment.copy(customers = newCustomers.associateWith {
-                    environment.customers[it] ?: CustomerStats(0.0, environment.arms.associateWith { 0.0 }) })
+                onChange(environment.copy(customers = newCustomers.associateWith {
+                    environment.customers[it] ?: CustomerStats(0.0, environment.arms.associateWith { 0.0 }) }))
             }
         }
         if (armsReadOnly.value && customersReadOnly.value) {
             errors = errors.copy(customerStats = validateCustomerStats(environment.customers), simulationParams = validateSimulationParams(environment.numTrials, environment.numSteps, environmentConstraints))
             CustomerStatsManager(environment.arms.toMutableList(), environment.customers.toMutableMap()) {
                 newCustomerStats ->
-                environment = environment.copy(customers = newCustomerStats)
+                onChange(environment.copy(customers = newCustomerStats))
                 errors = errors.copy(customerStats = validateCustomerStats(environment.customers))
             }
             SimulationParamManager(SimulationParams(environment.numTrials, environment.numSteps)) {
                 newParams ->
-                environment = environment.copy(numTrials = newParams.numTrials, numSteps = newParams.numCustomers)
+                onChange(environment.copy(numTrials = newParams.numTrials, numSteps = newParams.numCustomers))
                 errors = errors.copy(simulationParams = validateSimulationParams(environment.numTrials, environment.numSteps, environmentConstraints))
             }
             if (!simRunning) {
